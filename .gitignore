@@ -125,3 +125,4 @@ visualizations/paper_visualizations/
 # Block all data directories
 ae_python_code/meal_windows_combined/
 cma_cluster/analysis_data/
+visualizations/
