@@ -1,0 +1,28 @@
+\begin{table*}[ht]
+\centering
+\caption{\textbf{PCA covariate --- ALL meals: causal mediation effects ($N = 190$, +45.0g treatment).}
+Time = postprandial measurement time point in minutes after meal start.
+ACME = Average Causal Mediation Effect (indirect effect mediated through insulin);
+ADE = Average Direct Effect (effect not mediated through insulin);
+Total = ACME + ADE.
+Est.\ = point estimate (mg/dL);
+95\% CI from quasi-Bayesian approximation with 1000 Monte Carlo simulations;
+$p$ = two-sided p-value testing the null hypothesis that the effect equals zero.
+Significant results ($p < 0.05$) are shown in \textbf{bold}.}
+\label{tab:effects_pca_all_lmer_45.0g}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccc}
+\toprule
+& \multicolumn{3}{c}{ACME} & \multicolumn{3}{c}{ADE} & \multicolumn{3}{c}{Total} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+Time & Est. & 95\% CI & $p$ & Est. & 95\% CI & $p$ & Est. & 95\% CI & $p$ \\
+\midrule
+60 min & -6.17 & (-13.52, 0.83) & 0.10 & \textbf{10.24} & \textbf{(1.44, 19.11)} & \textbf{0.03} & 4.07 & (-2.85, 10.87) & 0.25 \\
+90 min & \textbf{-11.85} & \textbf{(-21.61, -2.57)} & \textbf{0.01} & \textbf{19.17} & \textbf{(6.69, 31.19)} & \textbf{0.002} & 7.32 & (-1.22, 16.44) & 0.10 \\
+120 min & \textbf{-14.38} & \textbf{(-25.28, -3.96)} & \textbf{0.008} & \textbf{21.94} & \textbf{(7.91, 36.30)} & \textbf{0.004} & 7.56 & (-2.04, 17.19) & 0.13 \\
+150 min & \textbf{-11.10} & \textbf{(-21.82, -0.59)} & \textbf{0.04} & \textbf{17.11} & \textbf{(2.89, 30.89)} & \textbf{0.02} & 6.01 & (-3.54, 15.56) & 0.22 \\
+180 min & -10.53 & (-21.01, 0.44) & 0.06 & \textbf{17.35} & \textbf{(3.37, 30.73)} & \textbf{0.02} & 6.82 & (-2.30, 16.32) & 0.16 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

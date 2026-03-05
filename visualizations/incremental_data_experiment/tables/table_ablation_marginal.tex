@@ -1,0 +1,18 @@
+\begin{table}[ht]
+\centering
+\caption{\textbf{Marginal contribution of each penalty layer.}
+$\Delta$ = mean metric with penalty enabled $-$ mean metric with penalty disabled,
+averaged across all other penalty combinations and seeds.
+Positive $\Delta R^2$ and $\Delta$ Balance are desirable.}
+\label{tab:ablation_marginal}
+\begin{tabular}{lccc}
+\toprule
+Penalty Layer & $\Delta R^2$ & $\Delta$ Balance & $\Delta$ Mediator $R^2$ \\
+\midrule
+linearization & +0.0126 & +0.0458 & -0.0155 \\
+balancing & -0.0707 & +0.3168 & -0.0920 \\
+ci\_penalty & +0.0004 & -0.0056 & -0.0073 \\
+stability & -0.0006 & +0.0196 & -0.0012 \\
+\bottomrule
+\end{tabular}
+\end{table}

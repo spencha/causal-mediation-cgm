@@ -1,0 +1,54 @@
+\begin{table*}[ht]
+\centering
+\caption{\textbf{PCA covariate --- ALL meals: causal mediation effects at 5-minute intervals ($N = 190$, +45.0g treatment).}
+Time = postprandial measurement time point in minutes after meal start (reported at 5-minute intervals).
+ACME = Average Causal Mediation Effect (indirect effect mediated through insulin);
+ADE = Average Direct Effect (effect not mediated through insulin);
+Total = ACME + ADE.
+Est.\ = point estimate (mg/dL);
+95\% CI from quasi-Bayesian approximation with 1000 Monte Carlo simulations;
+$p$ = two-sided p-value testing the null hypothesis that the effect equals zero.
+Significant results ($p < 0.05$) are shown in \textbf{bold}.}
+\label{tab:effects_full_pca_all_lmer_45.0g}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccc}
+\toprule
+& \multicolumn{3}{c}{ACME} & \multicolumn{3}{c}{ADE} & \multicolumn{3}{c}{Total} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+Time & Est. & 95\% CI & $p$ & Est. & 95\% CI & $p$ & Est. & 95\% CI & $p$ \\
+\midrule
+60 min & -6.17 & (-13.52, 0.83) & 0.10 & \textbf{10.24} & \textbf{(1.44, 19.11)} & \textbf{0.03} & 4.07 & (-2.85, 10.87) & 0.25 \\
+65 min & -7.21 & (-14.82, 0.80) & 0.07 & \textbf{11.72} & \textbf{(1.42, 22.32)} & \textbf{0.02} & 4.51 & (-2.35, 11.59) & 0.22 \\
+70 min & \textbf{-8.29} & \textbf{(-16.53, -0.35)} & \textbf{0.04} & \textbf{13.33} & \textbf{(3.04, 23.39)} & \textbf{0.01} & 5.04 & (-2.71, 12.66) & 0.20 \\
+75 min & \textbf{-9.97} & \textbf{(-18.90, -1.57)} & \textbf{0.02} & \textbf{15.49} & \textbf{(4.11, 27.23)} & \textbf{0.002} & 5.52 & (-2.74, 13.37) & 0.17 \\
+80 min & \textbf{-11.37} & \textbf{(-20.38, -2.03)} & \textbf{0.02} & \textbf{17.41} & \textbf{(4.61, 29.15)} & \textbf{0.002} & 6.03 & (-2.50, 14.35) & 0.18 \\
+85 min & \textbf{-11.41} & \textbf{(-21.52, -2.66)} & \textbf{0.02} & \textbf{18.16} & \textbf{(5.77, 30.32)} & \textbf{0.008} & 6.74 & (-1.43, 15.09) & 0.11 \\
+90 min & \textbf{-11.85} & \textbf{(-21.61, -2.57)} & \textbf{0.01} & \textbf{19.17} & \textbf{(6.69, 31.19)} & \textbf{0.002} & 7.32 & (-1.22, 16.44) & 0.10 \\
+95 min & \textbf{-12.74} & \textbf{(-22.50, -3.75)} & \textbf{0.006} & \textbf{20.18} & \textbf{(7.39, 32.86)} & \textbf{0.002} & 7.44 & (-1.40, 16.44) & 0.11 \\
+100 min & \textbf{-12.49} & \textbf{(-22.66, -3.15)} & \textbf{0.006} & \textbf{19.70} & \textbf{(6.71, 32.75)} & \textbf{0.002} & 7.21 & (-1.76, 16.28) & 0.11 \\
+105 min & \textbf{-13.04} & \textbf{(-22.92, -3.27)} & \textbf{0.008} & \textbf{20.22} & \textbf{(7.23, 33.93)} & \textbf{0.004} & 7.19 & (-2.32, 17.01) & 0.13 \\
+110 min & \textbf{-14.37} & \textbf{(-24.31, -3.98)} & \textbf{0.006} & \textbf{22.02} & \textbf{(8.30, 34.88)} & \textbf{$<$0.001} & 7.65 & (-2.07, 17.38) & 0.16 \\
+115 min & \textbf{-14.76} & \textbf{(-26.49, -4.39)} & \textbf{0.004} & \textbf{22.64} & \textbf{(8.81, 36.57)} & \textbf{0.002} & 7.88 & (-1.99, 17.98) & 0.10 \\
+120 min & \textbf{-14.38} & \textbf{(-25.28, -3.96)} & \textbf{0.008} & \textbf{21.94} & \textbf{(7.91, 36.30)} & \textbf{0.004} & 7.56 & (-2.04, 17.19) & 0.13 \\
+125 min & \textbf{-14.09} & \textbf{(-23.80, -3.70)} & \textbf{0.01} & \textbf{21.33} & \textbf{(6.15, 35.24)} & \textbf{0.002} & 7.24 & (-2.46, 17.48) & 0.14 \\
+130 min & \textbf{-13.86} & \textbf{(-23.50, -3.21)} & \textbf{0.002} & \textbf{20.97} & \textbf{(7.76, 34.50)} & \textbf{0.004} & 7.11 & (-2.80, 17.11) & 0.16 \\
+135 min & \textbf{-13.44} & \textbf{(-23.76, -2.90)} & \textbf{0.02} & \textbf{20.40} & \textbf{(7.06, 34.63)} & \textbf{$<$0.001} & 6.96 & (-2.80, 16.87) & 0.16 \\
+140 min & \textbf{-12.35} & \textbf{(-23.17, -2.15)} & \textbf{0.02} & \textbf{18.87} & \textbf{(4.10, 32.65)} & \textbf{0.01} & 6.52 & (-3.40, 16.52) & 0.20 \\
+145 min & \textbf{-11.64} & \textbf{(-22.16, -1.84)} & \textbf{0.02} & \textbf{17.97} & \textbf{(4.11, 31.69)} & \textbf{0.01} & 6.33 & (-3.45, 15.86) & 0.19 \\
+150 min & \textbf{-11.10} & \textbf{(-21.82, -0.59)} & \textbf{0.04} & \textbf{17.11} & \textbf{(2.89, 30.89)} & \textbf{0.02} & 6.01 & (-3.54, 15.56) & 0.22 \\
+155 min & \textbf{-12.29} & \textbf{(-22.88, -2.01)} & \textbf{0.02} & \textbf{18.75} & \textbf{(5.04, 33.27)} & \textbf{0.008} & 6.46 & (-2.77, 15.72) & 0.19 \\
+160 min & \textbf{-13.17} & \textbf{(-23.51, -2.82)} & \textbf{0.01} & \textbf{19.57} & \textbf{(6.22, 33.10)} & \textbf{0.002} & 6.40 & (-2.94, 16.32) & 0.20 \\
+165 min & \textbf{-11.37} & \textbf{(-21.49, -1.74)} & \textbf{0.01} & \textbf{17.88} & \textbf{(4.56, 31.35)} & \textbf{0.01} & 6.51 & (-3.06, 16.01) & 0.18 \\
+170 min & \textbf{-11.37} & \textbf{(-22.11, -1.43)} & \textbf{0.03} & \textbf{17.90} & \textbf{(4.90, 31.66)} & \textbf{0.008} & 6.53 & (-1.65, 15.37) & 0.13 \\
+175 min & \textbf{-11.36} & \textbf{(-22.63, -0.98)} & \textbf{0.04} & \textbf{17.88} & \textbf{(3.82, 33.60)} & \textbf{0.01} & 6.53 & (-3.38, 16.53) & 0.17 \\
+180 min & -10.53 & (-21.01, 0.44) & 0.06 & \textbf{17.35} & \textbf{(3.37, 30.73)} & \textbf{0.02} & 6.82 & (-2.30, 16.32) & 0.16 \\
+185 min & \textbf{-10.36} & \textbf{(-21.09, -0.52)} & \textbf{0.04} & \textbf{17.18} & \textbf{(4.63, 31.51)} & \textbf{0.02} & 6.83 & (-2.73, 16.26) & 0.18 \\
+190 min & \textbf{-10.61} & \textbf{(-21.42, -0.38)} & \textbf{0.04} & \textbf{17.41} & \textbf{(2.70, 30.90)} & \textbf{0.02} & 6.80 & (-2.66, 16.04) & 0.18 \\
+195 min & -10.69 & (-21.89, -0.07) & 0.05 & \textbf{17.86} & \textbf{(4.28, 31.24)} & \textbf{0.008} & 7.17 & (-3.22, 16.47) & 0.16 \\
+200 min & -9.05 & (-20.53, 1.04) & 0.10 & \textbf{17.11} & \textbf{(3.29, 32.56)} & \textbf{0.01} & 8.06 & (-2.14, 17.84) & 0.12 \\
+205 min & -8.49 & (-19.23, 1.73) & 0.10 & \textbf{17.20} & \textbf{(2.71, 30.80)} & \textbf{0.02} & 8.71 & (-2.04, 18.98) & 0.09 \\
+210 min & -8.42 & (-19.05, 2.03) & 0.11 & \textbf{17.59} & \textbf{(3.30, 31.76)} & \textbf{0.02} & 9.17 & (-0.85, 19.02) & 0.08 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

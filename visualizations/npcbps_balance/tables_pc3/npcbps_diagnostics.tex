@@ -1,0 +1,21 @@
+\begin{table}[H]
+\centering
+\caption{npCBPS covariate balance before and after weighting.}
+\label{tab:npcbps_diagnostics}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Covariate & $r$ (Unwtd) & $r$ (Wtd) & Red.\ (\%) & Status \\
+\midrule
+PC1                     & $-0.051$ & $\phantom{-}0.002$ & 96.0 & Balanced \\
+PC2                     & $-0.049$ & $-0.002$ & 95.9 & Balanced \\
+PC3                     & $-0.121$ & $\phantom{-}0.000$ & 99.7 & Balanced \\
+Glucose at Meal (std.)  & $\phantom{-}0.106$ & $\phantom{-}0.005$ & 95.4 & Balanced \\
+\bottomrule
+\end{tabular}
+\vspace{4pt}
+\begin{minipage}{0.85\textwidth}
+\small
+\textit{Note:} $N = 199$, ESS $= 190.1$ (95.5\%), weight mean (SD) $= 1.000$ (0.217), weight range $= [0.448,\; 2.093]$. Balance achieved when $|r| < 0.1$. ESS $= (\sum w_i)^2 / \sum w_i^2$.
+\end{minipage}
+\end{table}

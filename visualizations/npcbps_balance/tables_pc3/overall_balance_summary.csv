@@ -1,0 +1,4 @@
+Metric,Before Weighting,After Weighting
+Covariates Balanced (|r| < 0.1),2/4,4/4
+Mean |Correlation|,0.082,0.002
+Max |Correlation|,0.121,0.005

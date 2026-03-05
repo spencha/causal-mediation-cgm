@@ -1,0 +1,23 @@
+# config_local.R
+# ==============
+# Local configuration for R scripts.
+#
+# SETUP INSTRUCTIONS:
+# 1. Copy this file: cp config_local.R.template config_local.R
+# 2. Edit config_local.R with your local paths
+# 3. config_local.R is git-ignored, so your paths stay private
+# ==============
+
+# Base directory - your local causal_ae folder
+# This is the only setting most users need to change
+LOCAL_BASE_DIR <- "/Users/Spencer/Desktop/causal_ae"
+
+# Optional: Override specific directories if they differ from defaults
+# Defaults match your current structure:
+#   ANALYSIS_DATA_DIR: LOCAL_BASE_DIR/cma_cluster/analysis_data
+#   MEDIATION_RESULTS_DIR: LOCAL_BASE_DIR/cma_cluster/mediation_results
+#   FIGURES_DIR: LOCAL_BASE_DIR/results_visualizations/images
+
+# Uncomment and modify only if needed:
+# Sys.setenv(CAUSAL_AE_DATA_DIR = "/path/to/your/analysis_data")
+# Sys.setenv(CAUSAL_AE_MEDIATION_RESULTS_DIR = "/path/to/your/results")

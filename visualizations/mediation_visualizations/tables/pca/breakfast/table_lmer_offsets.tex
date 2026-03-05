@@ -1,0 +1,42 @@
+\begin{table*}[ht]
+\centering
+\caption{\textbf{PCA covariate --- Breakfast meals: LMER causal mediation effects across treatment doses ($N = 51$).}
+Time = postprandial measurement time point in minutes after meal start.
+Dose = hypothetical increase in carbohydrate intake (grams) above the meal-type-specific median.
+ACME = Average Causal Mediation Effect (indirect effect mediated through insulin);
+ADE = Average Direct Effect (effect not mediated through insulin);
+Total = ACME + ADE.
+Est.\ = point estimate (mg/dL); 95\% CI from quasi-Bayesian approximation with 1000 Monte Carlo simulations;
+$p$ = two-sided p-value testing the null hypothesis that the effect equals zero.
+Significant results ($p < 0.05$) are shown in \textbf{bold}.}
+\label{tab:lmer_offsets_pca_breakfast}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccccccc}
+\toprule
+& & \multicolumn{3}{c}{ACME} & \multicolumn{3}{c}{ADE} & \multicolumn{3}{c}{Total} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule(lr){9-11}
+Time & Dose & Est. & 95\% CI & $p$ & Est. & 95\% CI & $p$ & Est. & 95\% CI & $p$ \\
+\midrule
+\multirow{3}{*}{60 min} & +15.0g & \textbf{-7.08} & \textbf{(-12.93, -1.96)} & \textbf{$<$0.001} & \textbf{9.40} & \textbf{(2.56, 16.39)} & \textbf{0.01} & 2.33 & (-2.67, 7.32) & 0.36 \\
+ & +30.0g & \textbf{-14.19} & \textbf{(-25.88, -3.66)} & \textbf{0.004} & \textbf{18.72} & \textbf{(4.75, 33.26)} & \textbf{0.01} & 4.54 & (-5.83, 15.08) & 0.35 \\
+ & +45.0g & \textbf{-21.68} & \textbf{(-39.53, -6.03)} & \textbf{0.004} & \textbf{27.92} & \textbf{(6.86, 48.22)} & \textbf{0.01} & 6.24 & (-9.62, 21.14) & 0.42 \\
+\midrule
+\multirow{3}{*}{90 min} & +15.0g & \textbf{-10.12} & \textbf{(-17.36, -3.93)} & \textbf{0.002} & \textbf{11.65} & \textbf{(3.15, 20.15)} & \textbf{0.008} & 1.53 & (-4.61, 8.03) & 0.64 \\
+ & +30.0g & \textbf{-20.16} & \textbf{(-34.34, -6.50)} & \textbf{0.004} & \textbf{23.46} & \textbf{(5.53, 40.78)} & \textbf{0.01} & 3.30 & (-9.24, 15.51) & 0.65 \\
+ & +45.0g & \textbf{-30.16} & \textbf{(-52.34, -10.61)} & \textbf{0.002} & \textbf{35.15} & \textbf{(9.60, 58.98)} & \textbf{0.008} & 5.00 & (-13.12, 22.17) & 0.55 \\
+\midrule
+\multirow{3}{*}{120 min} & +15.0g & \textbf{-10.71} & \textbf{(-18.37, -3.79)} & \textbf{$<$0.001} & \textbf{11.13} & \textbf{(2.14, 19.74)} & \textbf{0.01} & 0.42 & (-5.97, 7.31) & 0.91 \\
+ & +30.0g & \textbf{-21.15} & \textbf{(-35.93, -7.43)} & \textbf{0.004} & \textbf{22.38} & \textbf{(3.72, 41.58)} & \textbf{0.02} & 1.23 & (-12.39, 15.09) & 0.85 \\
+ & +45.0g & \textbf{-32.34} & \textbf{(-55.01, -13.04)} & \textbf{0.002} & \textbf{33.85} & \textbf{(6.56, 60.33)} & \textbf{0.01} & 1.51 & (-19.47, 20.40) & 0.88 \\
+\midrule
+\multirow{3}{*}{150 min} & +15.0g & \textbf{-8.81} & \textbf{(-16.00, -1.90)} & \textbf{0.02} & 6.96 & (-2.58, 15.66) & 0.13 & -1.85 & (-8.06, 4.60) & 0.55 \\
+ & +30.0g & \textbf{-17.34} & \textbf{(-32.17, -3.95)} & \textbf{0.006} & 13.43 & (-3.97, 31.04) & 0.12 & -3.91 & (-15.96, 9.05) & 0.54 \\
+ & +45.0g & \textbf{-26.55} & \textbf{(-49.23, -6.41)} & \textbf{0.004} & 21.36 & (-5.53, 47.79) & 0.13 & -5.19 & (-24.07, 14.28) & 0.59 \\
+\midrule
+\multirow{3}{*}{180 min} & +15.0g & \textbf{-6.76} & \textbf{(-13.48, -0.29)} & \textbf{0.04} & 4.36 & (-4.23, 12.60) & 0.32 & -2.40 & (-8.56, 3.51) & 0.44 \\
+ & +30.0g & \textbf{-13.82} & \textbf{(-29.26, -1.13)} & \textbf{0.03} & 9.12 & (-8.40, 26.78) & 0.30 & -4.70 & (-17.61, 8.04) & 0.45 \\
+ & +45.0g & \textbf{-20.20} & \textbf{(-40.97, -0.69)} & \textbf{0.04} & 13.21 & (-13.28, 39.53) & 0.32 & -7.00 & (-25.50, 11.77) & 0.47 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

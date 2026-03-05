@@ -1,0 +1,123 @@
+# ============================================
+# Local configuration (contains user-specific paths)
+# ============================================
+config_local.yaml
+config_local.R
+
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+.env
+.venv
+env/
+venv/
+*.egg-info/
+.coverage
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ============================================
+# R
+# ============================================
+.RData
+.RHistory
+.Rproj.user/
+*.Rcheck/
+renv/library/
+renv/staging/
+
+# ============================================
+# Data files (too large / protected)
+# ============================================
+
+# Meal window data
+ae_python_code/meal_windows/
+
+# CSV data files (but not the scripts)
+cma_cluster/analysis_data/*.csv
+cma_cluster/combined_results/*.csv
+
+# R data files
+*.RData
+*.rda
+*.rds
+
+# Pickle / serialized
+*.pkl
+*.pickle
+*.joblib
+*.npy
+*.npz
+
+# HDF5 / models
+*.h5
+*.hdf5
+*.ckpt*
+*.pb
+
+# ============================================
+# Results / Outputs (regenerable)
+# ============================================
+
+# Weights (generated)
+cma_cluster/analysis_data/weights/
+
+# Mediation results from HPC
+cma_cluster/mediation_results/
+
+# Figures (all generated)
+results_visualizations/images/
+
+# Tables
+results_visualizations/tables/
+# ============================================
+# HPC / Cluster job scripts (contain local paths / personal info)
+# ============================================
+cma_cluster/*.sub
+cma_cluster/*.sh
+
+# ============================================
+# HPC / Cluster logs
+# ============================================
+logs/
+slurm-*.out
+slurm-*.err
+*.out
+*.err
+
+# ============================================
+# IDE / Editor
+# ============================================
+.vscode/
+.idea/
+*.Rproj
+*.swp
+*.swo
+*~
+
+# ============================================
+# OS generated
+# ============================================
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+Desktop.ini
+
+# Raw data (OhioT1DM XML files)
+OhioT1DM/2018/
+OhioT1DM/2020/
+
+# Generated data summaries
+results_visualizations/data_summary/
+
+# Experiment result CSVs (regenerable from autoencoder runs)
+visualizations/incremental_data_experiment/data/
+
+# Paper visualizations outputs (regenerable via compose_paper_visualizations.py)
+visualizations/paper_visualizations/

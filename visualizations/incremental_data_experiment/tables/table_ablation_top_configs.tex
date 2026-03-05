@@ -1,0 +1,27 @@
+\begin{table*}[ht]
+\centering
+\caption{\textbf{Top 10 penalization configurations from the ablation study (2 seeds each).}
+All $2^4 = 16$ combinations of the four penalty layers are evaluated.
+Architecture: CNN; optimizer: rmsprop.
+Training on combined 2018+2020 data.
+Treatment AUC ideal is 0.5 (no predictive power $\Rightarrow$ balanced embedding).}
+\label{tab:ablation_top_configs}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{clcccc}
+\toprule
+Rank & Configuration & Outcome $R^2$ & Balance Score & Mediator $R^2$ & Treatment AUC \\
+\midrule
+1 & linearization\_balancing\_ci\_penalty\_stability & 0.321 $\pm$ 0.006 & 0.961 $\pm$ 0.042 & 0.333 $\pm$ 0.062 & 0.519 $\pm$ 0.021 \\
+2 & balancing\_stability & 0.305 $\pm$ 0.004 & 0.937 $\pm$ 0.081 & 0.366 $\pm$ 0.050 & 0.471 $\pm$ 0.044 \\
+3 & linearization\_balancing & 0.319 $\pm$ 0.046 & 0.917 $\pm$ 0.014 & 0.334 $\pm$ 0.001 & 0.495 $\pm$ 0.059 \\
+4 & balancing\_ci\_penalty\_stability & 0.275 $\pm$ 0.014 & 0.913 $\pm$ 0.018 & 0.329 $\pm$ 0.019 & 0.494 $\pm$ 0.061 \\
+5 & balancing & 0.314 $\pm$ 0.034 & 0.912 $\pm$ 0.088 & 0.373 $\pm$ 0.002 & 0.456 $\pm$ 0.044 \\
+6 & linearization\_balancing\_stability & 0.317 $\pm$ 0.014 & 0.880 $\pm$ 0.028 & 0.366 $\pm$ 0.047 & 0.440 $\pm$ 0.014 \\
+7 & linearization\_balancing\_ci\_penalty & 0.325 $\pm$ 0.001 & 0.875 $\pm$ 0.013 & 0.341 $\pm$ 0.025 & 0.563 $\pm$ 0.006 \\
+8 & balancing\_ci\_penalty & 0.278 $\pm$ 0.010 & 0.862 $\pm$ 0.082 & 0.341 $\pm$ 0.044 & 0.569 $\pm$ 0.041 \\
+9 & linearization\_ci\_penalty\_stability & 0.396 $\pm$ 0.022 & 0.663 $\pm$ 0.062 & 0.460 $\pm$ 0.003 & 0.668 $\pm$ 0.031 \\
+10 & linearization\_stability & 0.361 $\pm$ 0.024 & 0.630 $\pm$ 0.020 & 0.410 $\pm$ 0.014 & 0.685 $\pm$ 0.010 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

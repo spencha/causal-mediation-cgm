@@ -1,0 +1,28 @@
+\begin{table*}[ht]
+\centering
+\caption{\textbf{Training and test set characteristics.}
+Comparison of variable distributions between Test and Train sets.
+Continuous variables presented as mean $\pm$ SD.
+Categorical variables (meal types) as percentages.
+P-values from Mann-Whitney U test (continuous) or chi-squared test (categorical).
+Non-significant p-values ($p > 0.05$) indicate comparable distributions.}
+\label{tab:train_test_characteristics}
+\resizebox{0.85\textwidth}{!}{%
+\begin{tabular}{lrrr}
+\toprule
+Variable & Test & Train & p-value \\
+\midrule
+Number of meal events & 199 & 777 & -- \\
+Number of subjects & 11 & 12 & -- \\
+Carbohydrate intake (g) & 54.1 $\pm$ 38.9 & 50.9 $\pm$ 35.9 & 0.196 \\
+Insulin bolus (units) & 8.05 $\pm$ 6.49 & 7.52 $\pm$ 6.20 & 0.352 \\
+Pre-meal glucose (mg/dL) & 154.3 $\pm$ 58.7 & 149.6 $\pm$ 54.1 & 0.455 \\
+Breakfast (\%) & 26.1 & 25.1 & -- \\
+Lunch (\%) & 29.6 & 28.4 & -- \\
+Dinner (\%) & 24.1 & 24.5 & -- \\
+Snack (\%) & 20.1 & 22.0 & -- \\
+Meal type distribution & -- & -- & 0.936 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

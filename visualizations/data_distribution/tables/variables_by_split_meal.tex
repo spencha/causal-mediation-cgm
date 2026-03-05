@@ -1,0 +1,25 @@
+\begin{table*}[ht]
+\centering
+\small
+\caption{\textbf{Treatment and mediator distributions stratified by data split and meal type.}
+Demonstrates that training and test sets have comparable distributions across meal types.
+N = number of meal events; Mean and SD in original units.}
+\label{tab:stratified_split_meal}
+\begin{tabular}{llccccc}
+\toprule
+& & & \multicolumn{2}{c}{Carbohydrate (g)} & \multicolumn{2}{c}{Insulin Bolus (U)} \\
+\cmidrule(lr){4-5} \cmidrule(lr){6-7}
+Split & Meal Type & N & Mean & SD & Mean & SD \\
+\midrule
+\multirow{4}{*}{Test} & Breakfast & 52 & 49.5 & 36.0 & 7.77 & 6.23 \\
+ & Lunch & 59 & 65.0 & 41.7 & 9.70 & 6.43 \\
+ & Dinner & 48 & 67.3 & 40.9 & 9.62 & 7.07 \\
+ & Snack & 40 & 28.1 & 16.9 & 4.12 & 4.22 \\
+\midrule
+\multirow{4}{*}{Train} & Breakfast & 195 & 46.1 & 35.5 & 7.16 & 6.38 \\
+ & Lunch & 221 & 64.2 & 36.0 & 8.58 & 5.83 \\
+ & Dinner & 190 & 62.2 & 37.1 & 9.66 & 6.88 \\
+ & Snack & 171 & 26.6 & 15.7 & 4.19 & 3.77 \\
+\bottomrule
+\end{tabular}
+\end{table*}

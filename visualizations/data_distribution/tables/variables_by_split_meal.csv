@@ -1,0 +1,9 @@
+Split,Meal Type,N,Carbs Mean,Carbs SD,Bolus Mean,Bolus SD
+Test,Breakfast,52,49.5,36.0,7.77,6.23
+Test,Lunch,59,65.0,41.7,9.70,6.43
+Test,Dinner,48,67.3,40.9,9.62,7.07
+Test,Snack,40,28.1,16.9,4.12,4.22
+Train,Breakfast,195,46.1,35.5,7.16,6.38
+Train,Lunch,221,64.2,36.0,8.58,5.83
+Train,Dinner,190,62.2,37.1,9.66,6.88
+Train,Snack,171,26.6,15.7,4.19,3.77

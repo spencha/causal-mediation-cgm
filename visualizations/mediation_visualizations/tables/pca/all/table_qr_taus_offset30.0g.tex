@@ -1,0 +1,43 @@
+\begin{table*}[ht]
+\centering
+\caption{\textbf{PCA covariate --- ALL meals: QR causal mediation effects ($N = 190$, +30.0g treatment).}
+Time = postprandial measurement time point in minutes after meal start.
+Quantile = conditional quantile ($\tau$) of the glucose response distribution being modeled.
+Results shown for quantiles $\tau \in \{0.25, 0.50, 0.75\}$.
+ACME = Average Causal Mediation Effect (indirect effect mediated through insulin);
+ADE = Average Direct Effect (effect not mediated through insulin);
+Total = ACME + ADE.
+Est.\ = point estimate (mg/dL); 95\% CI from bootstrap;
+$p$ = two-sided p-value testing the null hypothesis that the effect equals zero.
+Significant results ($p < 0.05$) are shown in \textbf{bold}.}
+\label{tab:qr_taus_pca_all_30.0g}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccccccc}
+\toprule
+& & \multicolumn{3}{c}{ACME} & \multicolumn{3}{c}{ADE} & \multicolumn{3}{c}{Total} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule(lr){9-11}
+Time & Quantile & Est. & 95\% CI & $p$ & Est. & 95\% CI & $p$ & Est. & 95\% CI & $p$ \\
+\midrule
+\multirow{3}{*}{60 min} & $\tau=0.25$ & -2.65 & (-10.45, 5.09) & 0.50 & 6.84 & (-2.62, 16.26) & 0.16 & 4.20 & (-1.17, 9.75) & 0.11 \\
+ & $\tau=0.50$ & -0.38 & (-7.28, 7.15) & 0.88 & 5.66 & (-4.38, 15.52) & 0.26 & 5.28 & (-0.98, 11.55) & 0.09 \\
+ & $\tau=0.75$ & \textbf{-9.30} & \textbf{(-13.24, -5.79)} & \textbf{$<$0.001} & \textbf{12.93} & \textbf{(9.67, 16.42)} & \textbf{$<$0.001} & \textbf{3.63} & \textbf{(0.97, 6.17)} & \textbf{0.01} \\
+\midrule
+\multirow{3}{*}{90 min} & $\tau=0.25$ & -7.33 & (-17.65, 2.36) & 0.15 & 12.17 & (-3.44, 28.29) & 0.14 & 4.84 & (-6.40, 16.09) & 0.43 \\
+ & $\tau=0.50$ & \textbf{-9.46} & \textbf{(-18.00, -0.91)} & \textbf{0.04} & \textbf{13.83} & \textbf{(3.12, 23.97)} & \textbf{0.01} & 4.36 & (-1.19, 9.57) & 0.11 \\
+ & $\tau=0.75$ & \textbf{-10.81} & \textbf{(-16.24, -5.69)} & \textbf{$<$0.001} & \textbf{19.33} & \textbf{(9.02, 29.75)} & \textbf{$<$0.001} & 8.52 & (-0.06, 17.82) & 0.05 \\
+\midrule
+\multirow{3}{*}{120 min} & $\tau=0.25$ & -7.34 & (-17.41, 2.75) & 0.13 & 10.95 & (-3.10, 25.01) & 0.15 & 3.61 & (-6.89, 13.65) & 0.52 \\
+ & $\tau=0.50$ & \textbf{-10.06} & \textbf{(-15.99, -4.36)} & \textbf{$<$0.001} & \textbf{19.71} & \textbf{(9.24, 30.03)} & \textbf{$<$0.001} & \textbf{9.66} & \textbf{(0.68, 18.36)} & \textbf{0.04} \\
+ & $\tau=0.75$ & -5.79 & (-17.21, 5.98) & 0.31 & \textbf{19.73} & \textbf{(4.43, 33.85)} & \textbf{0.02} & \textbf{13.95} & \textbf{(4.82, 23.47)} & \textbf{0.006} \\
+\midrule
+\multirow{3}{*}{150 min} & $\tau=0.25$ & -8.19 & (-20.17, 3.92) & 0.19 & 8.93 & (-6.89, 23.68) & 0.28 & 0.74 & (-5.95, 7.44) & 0.85 \\
+ & $\tau=0.50$ & -6.06 & (-12.34, 0.06) & 0.05 & 9.20 & (-1.69, 20.24) & 0.10 & 3.14 & (-6.59, 12.74) & 0.50 \\
+ & $\tau=0.75$ & -7.79 & (-17.77, 2.15) & 0.12 & \textbf{18.09} & \textbf{(5.07, 31.07)} & \textbf{0.006} & \textbf{10.29} & \textbf{(2.14, 18.90)} & \textbf{0.02} \\
+\midrule
+\multirow{3}{*}{180 min} & $\tau=0.25$ & \textbf{-10.08} & \textbf{(-18.43, -2.52)} & \textbf{0.008} & \textbf{14.69} & \textbf{(2.26, 27.18)} & \textbf{0.02} & 4.62 & (-4.70, 13.08) & 0.28 \\
+ & $\tau=0.50$ & -2.62 & (-12.88, 6.87) & 0.61 & 5.85 & (-8.56, 20.02) & 0.43 & 3.22 & (-5.82, 12.35) & 0.48 \\
+ & $\tau=0.75$ & -5.00 & (-12.49, 2.03) & 0.17 & \textbf{12.82} & \textbf{(3.75, 21.39)} & \textbf{0.004} & \textbf{7.82} & \textbf{(2.58, 13.31)} & \textbf{0.002} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

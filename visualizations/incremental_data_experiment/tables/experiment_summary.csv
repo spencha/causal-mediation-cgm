@@ -1,0 +1,3 @@
+Experiment,Config,Outcome R²,Balance Score
+Architecture,CNN,0.251,0.846
+Architecture,LSTM,0.252,0.880

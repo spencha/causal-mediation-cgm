@@ -1,0 +1,454 @@
+---
+title: "OHIO T1DM 2020 Pre-Processing"
+author: ""
+date: "2025-01-02"
+output: pdf_document
+---
+
+```{r config, include=FALSE}
+# Source configuration
+config_locations <- c(
+  file.path(getwd(), "cma_cluster", "config.R"),
+  file.path(getwd(), "..", "cma_cluster", "config.R")
+)
+for (cfg_path in config_locations) {
+  if (file.exists(cfg_path)) {
+    source(cfg_path)
+    break
+  }
+}
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Load required libraries
+library(dplyr)  # For bind_rows in 5-min processing
+```
+
+# OhioT1DM 2020 Dataset Preprocessing
+
+This script processes the 2020 OhioT1DM dataset, which contains 6 additional subjects:
+- Subject IDs: 540, 544, 552, 567, 584, 596
+
+The processing pipeline mirrors the 2018 preprocessing but includes additional
+robustness for potential XML structure differences between cohorts.
+
+```{r}
+#-----------------------------------------------
+# Data preprocessing
+#-----------------------------------------------
+source("realdata-preprocess-functions.R")
+
+# Helper function to inspect XML structure
+inspect_xml_structure <- function(xml_path) {
+  data <- xmlParse(xml_path)
+  rootnode <- xmlRoot(data)
+  variables <- xmlChildren(rootnode)
+  varnames <- sapply(variables, xmlName)
+  cat("Variables found:", paste(varnames, collapse = ", "), "\n")
+  return(varnames)
+}
+```
+
+```{r}
+#---------------------------------
+# 1. Extract data from xml - Training data
+
+data_path <- CONFIG$OHIO_2020_TRAIN_DIR
+
+# 2020 cohort subject IDs
+file_names_train <- c("540-ws-training.xml",
+                      "544-ws-training.xml",
+                      "552-ws-training.xml",
+                      "567-ws-training.xml",
+                      "584-ws-training.xml",
+                      "596-ws-training.xml")
+
+nperson <- length(file_names_train)
+
+# Inspect XML structure from first file to understand 2020 format
+cat("\n=== Inspecting 2020 XML Structure ===\n")
+varnames_2020 <- inspect_xml_structure(file.path(data_path, file_names_train[1]))
+
+raw_train <- list()
+varnames_list <- list()  # Store varnames for each subject
+
+for (n in 1:nperson) {
+  data <- xmlParse(paste(data_path, file_names_train[n], sep = "/"))
+  rootnode <- xmlRoot(data)
+  variables <- xmlChildren(rootnode)
+  nvar <- xmlSize(rootnode)
+  raw_train[[n]] <- list()
+  varnames <- rep("", nvar)
+  for (i in 1:nvar) {
+    vari <- variables[[i]]
+    varnames[i] <- xmlName(variables[[i]])
+    data_var <- t(as.matrix(xmlSApply(vari, xmlAttrs)))
+    raw_train[[n]][[i]] <- data_var
+  }
+  varnames_list[[n]] <- varnames  # Store for later use
+  cat(sprintf("Loaded training data for subject %d: %s (%d variables)\n",
+              n, file_names_train[n], nvar))
+}
+
+# Store the first subject's varnames as the reference
+varnames_2020 <- varnames_list[[1]]
+cat("\n2020 Variable names:", paste(varnames_2020, collapse = ", "), "\n")
+```
+
+```{r}
+#---------------------------------
+# 2. Extract data from xml - Testing data
+
+data_path <- CONFIG$OHIO_2020_TEST_DIR
+
+file_names_test <- c("540-ws-testing.xml",
+                     "544-ws-testing.xml",
+                     "552-ws-testing.xml",
+                     "567-ws-testing.xml",
+                     "584-ws-testing.xml",
+                     "596-ws-testing.xml")
+
+raw_test <- list()
+varnames_list_test <- list()  # Store varnames for each subject
+
+for (n in 1:nperson) {
+  data <- xmlParse(paste(data_path, file_names_test[n], sep = "/"))
+  rootnode <- xmlRoot(data)
+  variables <- xmlChildren(rootnode)
+  nvar <- xmlSize(rootnode)
+  raw_test[[n]] <- list()
+  varnames <- rep("", nvar)
+  for (i in 1:nvar) {
+    vari <- variables[[i]]
+    varnames[i] <- xmlName(variables[[i]])
+    data_var <- t(as.matrix(xmlSApply(vari, xmlAttrs)))
+    raw_test[[n]][[i]] <- data_var
+  }
+  varnames_list_test[[n]] <- varnames
+  cat(sprintf("Loaded testing data for subject %d: %s (%d variables)\n",
+              n, file_names_test[n], nvar))
+}
+```
+
+#-----------------------------------------------
+# 3. Preprocess data into 30-minute intervals
+
+```{r}
+interval <- 30  # separate by half an hour
+data_train <- list()
+data_test  <- list()
+data_full  <- list()
+
+for (n in 1:nperson) {
+  cat(sprintf("\n=== Processing subject %d ===\n", n))
+
+  # training data - use preprocess0_2020 for 2020 data format
+  train0 <- preprocess0_2020(raw_train[[n]], varnames = varnames_list[[n]])
+  train1 <- preprocess1(train0, interval_min = interval)
+  data_train[[n]] <- preprocess2(train1, interval_min = interval)
+
+  # testing data
+  startdate <- date(dmy_hms(train0$glucose[1, 1]))
+  startbasal <- data_train[[n]]$basal[length(data_train[[n]]$basal)]
+  test0 <- preprocess0_2020(raw_test[[n]], varnames = varnames_list_test[[n]])
+  test1 <- preprocess1(test0, interval_min = interval, startdate = startdate)
+  data_test[[n]] <- preprocess2(test1, interval_min = interval, startbasal = startbasal)
+
+  # combine training and testing (use bind_rows to handle column mismatches)
+  data_full[[n]] <- bind_rows(data_train[[n]], data_test[[n]])
+
+  # generate extra variables
+  # total amount of carb input in the next half an hour
+  data_full[[n]] <- preprocess3_future(data_full[[n]],
+                                       variable = "meal",
+                                       interval_min = interval,
+                                       lag_time_range = c(0, 30),
+                                       new_var_name = "meal_future_halfhour",
+                                       FUN = sum)
+
+  # total amount of bolus from last time interval
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "bolus",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 60),
+                                     new_var_name = "bolus_past_30mins",
+                                     FUN = sum)
+
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "steps",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 60),
+                                     new_var_name = "steps_past_30mins",
+                                     FUN = sum)
+
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "heart",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 60),
+                                     new_var_name = "avg_heart_past_30mins",
+                                     FUN = sum)
+
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "gsr",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 60),
+                                     new_var_name = "avg_gsr_past_30mins",
+                                     FUN = sum)
+
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "skintemp",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 60),
+                                     new_var_name = "avg_skintemp_past_30mins",
+                                     FUN = sum)
+
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "airtemp",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 60),
+                                     new_var_name = "avg_airtemp_past_30mins",
+                                     FUN = sum)
+
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "meal",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 60),
+                                     new_var_name = "meal_past_30mins",
+                                     FUN = sum)
+
+  # average basal rate of 4-8 hours before the current time point
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "basal",
+                                     interval_min = interval,
+                                     lag_time_range = c(240, 480),
+                                     new_var_name = "basal_4_8")
+
+  # total amount of carb input in the previous 2 hours
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "meal",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 150),
+                                     new_var_name = "meal_past_2hrs",
+                                     FUN = sum)
+
+  # total amount of steps from past 2 hours
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "steps",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 150),
+                                     new_var_name = "steps_past_2hrs",
+                                     FUN = sum)
+
+  # total bolus taken at the meal plus the next 4 intervals
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "bolus",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 180),
+                                     new_var_name = "bolus_past_2hrs",
+                                     FUN = sum)
+
+  # average heart rate in past 2 hours
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "heart",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 150),
+                                     new_var_name = "avg_heart_past_2hrs")
+
+  # average gsr in past 2 hours
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "gsr",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 150),
+                                     new_var_name = "avg_gsr_past_2hrs")
+
+  # average skintemp in past 2 hours
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "skintemp",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 150),
+                                     new_var_name = "avg_skintemp_past_2hrs")
+
+  # average airtemp in past 2 hours
+  data_full[[n]] <- preprocess3_past(data_full[[n]],
+                                     variable = "airtemp",
+                                     interval_min = interval,
+                                     lag_time_range = c(30, 150),
+                                     new_var_name = "avg_airtemp_past_2hrs")
+}
+
+save.image("data_preprocessed_2020-halfhour.RData")
+```
+
+#--------
+# 4. Preprocess into 5-minute intervals
+#--------
+
+```{r}
+interval <- 5   # now 5-minute bins
+data_train <- vector("list", nperson)
+data_test  <- vector("list", nperson)
+data_full  <- vector("list", nperson)
+
+for (n in seq_len(nperson)) {
+  cat(sprintf("\n=== Processing subject %d (5-min intervals) ===\n", n))
+
+  # training data - use preprocess0_2020 for 2020 data format
+  train0 <- preprocess0_2020(raw_train[[n]], varnames = varnames_list[[n]])
+  train1 <- preprocess1(train0, interval_min = interval)
+  data_train[[n]] <- preprocess2(train1, interval_min = interval)
+
+  # testing data
+  startdate <- date(dmy_hms(train0$glucose[1, 1]))
+  startbasal <- data_train[[n]]$basal[length(data_train[[n]]$basal)]
+  test0 <- preprocess0_2020(raw_test[[n]], varnames = varnames_list_test[[n]])
+  test1 <- preprocess1(test0, interval_min = interval, startdate = startdate)
+  data_test[[n]] <- preprocess2(test1, interval_min = interval, startbasal = startbasal)
+
+  # combine
+  data_full[[n]] <- bind_rows(data_train[[n]], data_test[[n]])
+
+  # future carb in next 5-min window
+  data_full[[n]] <- preprocess3_future(
+    data_full[[n]],
+    variable       = "meal",
+    interval_min   = interval,
+    lag_time_range = c(0, interval),
+    new_var_name   = "meal_future_5min",
+    FUN            = sum
+  )
+
+  # past-window summaries (all lag ranges unchanged, but interval_min=5)
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "bolus", interval_min = interval,
+    lag_time_range = c(5, 10),   new_var_name = "bolus_past_5_10min", FUN = sum
+  )
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "steps", interval_min = interval,
+    lag_time_range = c(5, 10),   new_var_name = "steps_past_5_10min", FUN = sum
+  )
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "heart", interval_min = interval,
+    lag_time_range = c(5, 10),   new_var_name = "avg_heart_past_5_10min"
+  )
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "gsr", interval_min = interval,
+    lag_time_range = c(5, 10),   new_var_name = "avg_gsr_past_5_10min"
+  )
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "skintemp", interval_min = interval,
+    lag_time_range = c(5, 10),   new_var_name = "avg_skintemp_past_5_10min"
+  )
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "airtemp", interval_min = interval,
+    lag_time_range = c(5, 10),   new_var_name = "avg_airtemp_past_5_10min"
+  )
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "meal", interval_min = interval,
+    lag_time_range = c(5, 10),   new_var_name = "meal_past_5_10min", FUN = sum
+  )
+
+  # basal averaged 4-8 hrs before (4h=240min, 8h=480min)
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "basal", interval_min = interval,
+    lag_time_range = c(240, 480), new_var_name = "basal_4_8"
+  )
+
+  # carb past 2 hrs (30-150 min)
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "meal", interval_min = interval,
+    lag_time_range = c(30, 150),  new_var_name = "meal_past_2hrs", FUN = sum
+  )
+  # steps past 2 hrs
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "steps", interval_min = interval,
+    lag_time_range = c(30, 150),  new_var_name = "steps_past_2hrs", FUN = sum
+  )
+  # bolus past 2 hrs (30-180 min)
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "bolus", interval_min = interval,
+    lag_time_range = c(30, 180),  new_var_name = "bolus_past_2hrs", FUN = sum
+  )
+  # average heart, gsr, skintemp, airtemp past 2 hrs
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "heart", interval_min = interval,
+    lag_time_range = c(30, 150),  new_var_name = "avg_heart_past_2hrs"
+  )
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "gsr", interval_min = interval,
+    lag_time_range = c(30, 150),  new_var_name = "avg_gsr_past_2hrs"
+  )
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "skintemp", interval_min = interval,
+    lag_time_range = c(30, 150),  new_var_name = "avg_skintemp_past_2hrs"
+  )
+  data_full[[n]] <- preprocess3_past(
+    data_full[[n]], "airtemp", interval_min = interval,
+    lag_time_range = c(30, 150),  new_var_name = "avg_airtemp_past_2hrs"
+  )
+}
+
+# Save the 5-min processed 2020 data
+save.image("data_preprocessed_2020-5min.RData")
+
+cat("\n=== 2020 Data Preprocessing Complete ===\n")
+cat(sprintf("Processed %d subjects\n", nperson))
+cat(sprintf("Interval: %d minutes\n", interval))
+```
+
+#--------------------------------------------
+# 5. Plot part of the 5min dataset for QC
+#--------------------------------------------
+
+```{r}
+load("data_preprocessed_2020-5min.RData")
+
+i <- 1  # First subject
+dataset <- data_full[[i]]
+startdate <- 7
+enddate <- 13
+nday <- enddate - startdate + 1
+ntt <- 60 * 24 / 5
+temp <- subset(dataset, (day >= startdate) & (day <= enddate))
+temp$timestamp <- (temp$day - startdate) * ntt + temp$tt
+
+# plot the glucose
+par(mar = c(5, 4, 4, 6) + 0.1)
+plot(temp$timestamp, temp$glucose,
+     ylim = c(0, 400),
+     xlim = c(0, ntt * nday), type = "l", axes = FALSE,
+     xlab = "", ylab = "",
+     main = paste("2020 Cohort - Mobile Health Data for Subject", i, "in", nday, "days"))
+labels <- rep("", 2 * nday + 1)
+labels[(1:nday) * 2] <- paste("Day ", c(1 : nday))
+axis(1, at = (ntt / 2 * c(0:(nday * 2))), labels = labels, col = "black")
+abline(h = 80, col = "green")
+abline(h = 140, col = "green")
+mtext("Timestamp with 5 Min Intervals", side = 1, line = 2.5)
+box()
+par(new = TRUE)
+
+# plot the meals
+temp2 <- subset(temp, meal > 0)
+plot(temp2$timestamp, temp2$meal,
+     xlim = c(0, ntt * nday), pch = 20,
+     xlab = "", ylab = "", ylim = c(0, 200),
+     axes = FALSE, col = "red", col.axis = "red")
+arrows(temp2$timestamp, 0, temp2$timestamp, temp2$meal, length = 0, col = "red")
+mtext("Carb Intake (g)", side = 4, col = "red", line = 2.5)
+axis(4, ylim = c(0, 200), col = "red", col.ticks = "red")
+
+# plot insulin dosage
+par(new = TRUE)
+temp3 <- subset(temp, bolus > 0)
+plot(temp3$timestamp, temp3$bolus,
+     xlim = c(0, ntt * nday), pch = 20,
+     xlab = "", ylab = "", col = "blue", ylim = c(0, 20), axes = FALSE)
+arrows(temp3$timestamp, 0, temp3$timestamp, temp3$bolus, length = 0, col = "blue")
+axis(2, ylim = c(0, 20), col = "blue", col.ticks = "blue")
+mtext("Insulin Dosage (Unit)", side = 2, col = "blue", line = 2.5)
+
+legend("topleft", col = c("black", "green"),
+       lty = c(1, 1), legend = c("Blood Glucose (mg/dL)", "Safe Blood Glucose Range"))
+```

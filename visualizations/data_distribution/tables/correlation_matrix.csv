@@ -1,0 +1,4 @@
+,Carbohydrates (g),Bolus Insulin (U),Glucose at Meal (mg/dL)
+Carbohydrates (g),1.000,0.648,0.106
+Bolus Insulin (U),0.648,1.000,0.315
+Glucose at Meal (mg/dL),0.106,0.315,1.000

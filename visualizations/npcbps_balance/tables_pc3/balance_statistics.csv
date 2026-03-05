@@ -1,0 +1,5 @@
+Covariate,r (Unweighted),r (Weighted),Reduction (%),Status
+PC_1,-0.0511,0.0021,95.9815,Balanced
+PC_2,-0.0493,-0.0020,95.9447,Balanced
+PC_3,-0.1212,0.0003,99.7355,Balanced
+glucose_at_meal,0.1062,0.0049,95.3788,Balanced

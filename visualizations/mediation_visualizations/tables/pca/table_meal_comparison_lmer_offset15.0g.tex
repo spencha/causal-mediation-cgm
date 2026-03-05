@@ -1,0 +1,27 @@
+\begin{table*}[ht]
+\centering
+\caption{\textbf{Meal-type comparison of causal mediation effects (PCA covariates, LMER, +15.0g treatment).}
+Sample sizes: Breakfast: $n=51$, Lunch: $n=58$, Dinner: $n=42$, Snack: $n=39$.
+Time = postprandial measurement time point in minutes after meal start.
+ACME = Average Causal Mediation Effect (indirect effect mediated through insulin);
+ADE = Average Direct Effect (effect not mediated through insulin).
+Point estimates (mg/dL) with 95\% CI in parentheses.
+* indicates $p < 0.05$, where $p$ is the two-sided p-value testing the null hypothesis that the effect equals zero.
+Significant results ($p < 0.05$) are shown in \textbf{bold}.}
+\label{tab:meal_comparison_pca_lmer_15.0g}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
+\toprule
+& \multicolumn{2}{c}{Breakfast} & \multicolumn{2}{c}{Lunch} & \multicolumn{2}{c}{Dinner} & \multicolumn{2}{c}{Snack} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+Time & ACME & ADE & ACME & ADE & ACME & ADE & ACME & ADE \\
+\midrule
+60 min & \textbf{-7.08* (-12.93, -1.96)} & \textbf{9.40* (2.56, 16.39)} & -0.16 (-3.55, 3.19) & 0.30 (-4.92, 5.81) & \textbf{-6.15* (-11.53, -1.00)} & \textbf{8.14* (0.51, 15.63)} & 6.58 (-1.69, 15.81) & -0.77 (-12.92, 11.12) \\
+90 min & \textbf{-10.12* (-17.36, -3.93)} & \textbf{11.65* (3.15, 20.15)} & 0.71 (-3.17, 4.72) & 0.95 (-5.32, 6.89) & \textbf{-10.64* (-18.99, -3.35)} & \textbf{16.17* (6.91, 25.84)} & 8.15 (-4.17, 21.67) & -4.51 (-20.22, 13.01) \\
+120 min & \textbf{-10.71* (-18.37, -3.79)} & \textbf{11.13* (2.14, 19.74)} & 0.55 (-4.00, 5.20) & 2.17 (-4.79, 9.21) & \textbf{-10.96* (-21.32, -2.56)} & \textbf{17.58* (6.54, 28.61)} & 7.97 (-5.50, 23.07) & -7.01 (-25.22, 11.12) \\
+150 min & \textbf{-8.81* (-16.00, -1.90)} & 6.96 (-2.58, 15.66) & 1.36 (-2.85, 5.48) & 1.28 (-5.15, 7.88) & \textbf{-10.73* (-20.55, -2.04)} & \textbf{15.94* (4.36, 27.29)} & 7.15 (-6.82, 23.05) & -10.75 (-30.60, 9.11) \\
+180 min & \textbf{-6.76* (-13.48, -0.29)} & 4.36 (-4.23, 12.60) & 0.66 (-2.97, 4.39) & 1.22 (-4.30, 7.04) & \textbf{-10.84* (-20.16, -1.89)} & \textbf{16.04* (4.09, 27.16)} & 3.81 (-11.58, 22.01) & -8.77 (-30.23, 13.07) \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

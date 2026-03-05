@@ -1,0 +1,5 @@
+Covariate,Corr_Unweighted,Corr_Weighted,P_Unweighted,P_Weighted,SMD_Unweighted,SMD_Weighted,Reduction_Pct,Balanced_Before,Balanced_After,Abs_Corr_Before,Abs_Corr_After,Improvement,Pct_Improvement
+PC_1,-0.0511,0.0021,0.4736,0.9776,-0.0511,0.0021,95.9815,True,True,0.0511,0.0021,0.0490,95.9815
+PC_2,-0.0493,-0.0020,0.4890,0.9781,-0.0493,-0.0020,95.9447,True,True,0.0493,0.0020,0.0473,95.9447
+PC_3,-0.1212,0.0003,0.0881,0.9965,-0.1212,0.0003,99.7355,False,True,0.1212,0.0003,0.1209,99.7355
+glucose_at_meal,0.1062,0.0049,0.1353,0.9464,0.1062,0.0049,95.3788,False,True,0.1062,0.0049,0.1013,95.3788

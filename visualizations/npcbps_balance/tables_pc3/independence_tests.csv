@@ -1,0 +1,5 @@
+Covariate,P_Unweighted,P_Weighted,Independent_Before,Independent_After
+PC_1,0.4736,0.9776,Y,Y
+PC_2,0.4890,0.9781,Y,Y
+PC_3,0.0881,0.9965,Y,Y
+glucose_at_meal,0.1353,0.9464,Y,Y

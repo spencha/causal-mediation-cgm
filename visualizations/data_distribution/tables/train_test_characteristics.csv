@@ -1,0 +1,11 @@
+Variable,Test,Train,p-value
+Number of meal events,199,777,--
+Number of subjects,11,12,--
+Carbohydrate intake (g),54.1 ± 38.9,50.9 ± 35.9,0.196
+Insulin bolus (units),8.05 ± 6.49,7.52 ± 6.20,0.352
+Pre-meal glucose (mg/dL),154.3 ± 58.7,149.6 ± 54.1,0.455
+Breakfast (%),26.1,25.1,--
+Lunch (%),29.6,28.4,--
+Dinner (%),24.1,24.5,--
+Snack (%),20.1,22.0,--
+Meal type distribution,--,--,0.936

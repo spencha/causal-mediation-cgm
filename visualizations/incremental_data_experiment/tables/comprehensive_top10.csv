@@ -1,0 +1,11 @@
+architecture,optimizer,penalty_config,outcome_r2_mean_mean,outcome_r2_mean_std,balance_score_mean,balance_score_std
+cnn,adam,linear+balance+ci,0.3004,0.0116,0.9692,0.0273
+cnn,adamw,linear+balance+ci,0.3004,0.0116,0.9692,0.0273
+cnn,rmsprop,all_penalties,0.3085,0.0213,0.9645,0.0304
+cnn,nadam,linear+balance,0.3057,0.0124,0.9563,0.0347
+cnn,nadam,linear+balance+ci,0.3017,0.002,0.9536,0.0586
+cnn,adam,linear+balance,0.2999,0.009,0.9357,0.0684
+cnn,adamw,linear+balance,0.2999,0.009,0.9357,0.0684
+cnn,nadam,all_penalties,0.2846,0.0105,0.9353,0.0542
+cnn,rmsprop,linear+balance,0.3155,0.033,0.9254,0.0179
+cnn,nadam,balance_only,0.3019,0.0161,0.9246,0.0758
