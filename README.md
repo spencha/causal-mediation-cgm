@@ -2,7 +2,7 @@
 
 > Code for the paper: **"Causal Mediation Pathways in Continuous Postprandial Glucose Monitoring for Type 1 Diabetes Patients"**
 
-A framework for causal mediation analysis (CMA) of continuous glucose monitoring (CGM) data from the OhioT1DM dataset. The pipeline learns low-dimensional representations of pre-meal CGM trajectories using causal-constrained autoencoders, then uses these representations as confounders in a mediation analysis estimating how meal carbohydrates affect postprandial glucose response through insulin bolus decisions.
+A framework for causal mediation analysis (CMA) of continuous glucose monitoring (CGM) data, developed on the OhioT1DM dataset and independently replicated on the DiaTrend dataset. The pipeline learns low-dimensional representations of pre-meal CGM trajectories using causal-constrained autoencoders, then uses these representations as confounders in a mediation analysis estimating how meal carbohydrates affect postprandial glucose response through insulin bolus decisions.
 
 ## Overview
 
@@ -26,6 +26,10 @@ The pipeline estimates:
 - **ADE** (Average Direct Effect): the direct effect of carbs on glucose *not through* bolus
 - **ATE** (Average Total Effect): ACME + ADE
 
+### DiaTrend Replication
+
+To assess generalizability beyond the twelve OhioT1DM subjects, the same pipeline is applied to the independent **DiaTrend dataset** (54 adults with type 1 diabetes). The treatment is meal carbohydrate intake, the mediator is the meal bolus (the pump `normal` bolus within a grace window of the meal), and the outcome is the postprandial glucose change. DiaTrend-specific code lives under `data_processing/diatrend/` (Python parsing and meal-episode construction), `ae_python_code/diatrend_loader.py` (embedding inputs), and `cma_cluster/diatrend/` (mediation, subject-cluster bootstrap, sensitivity, and demographic-moderation analyses). Because DiaTrend has no predefined split, a within-subject temporal train/test split is used, and inference for the replication relies on a subject-cluster bootstrap.
+
 ## Repository Structure
 
 ```
@@ -37,7 +41,9 @@ causal-mediation-cgm/
 │   ├── train_and_export_embeddings.py     # Train best config & export phi embeddings
 │   ├── train_horizon_specific_embeddings.py  # Train per-horizon (30-180 min) models
 │   ├── glycemic_event_prediction.py       # Evaluate phi on clinical prediction tasks
+│   ├── diatrend_loader.py                 # Load & window DiaTrend CGM/bolus data for the AE
 │   ├── experiments/                       # Model selection experiments
+│   │   ├── diatrend_ae_ablation.py              # DiaTrend embedding-config ablation sweep
 │   │   ├── run_comprehensive_ae_comparison.py   # Architecture × optimizer × penalty sweep
 │   │   ├── run_incremental_data_experiment.py   # Penalization ablation on combined data
 │   │   ├── ablation_penalization_layers.py      # Fine-grained penalty layer ablation
@@ -51,22 +57,43 @@ causal-mediation-cgm/
 │
 ├── cma_cluster/                           # Causal mediation analysis code (R) — code only
 │   ├── config.R                           # Centralized R path configuration
-│   ├── npcbps_weights.R                   # npCBPS weight estimation
-│   ├── run_mixed_effects_mediation.R      # Mixed-effects mediation (lmer + QR)
-│   └── run_all_timepoints_lmer.R          # Wrapper: run CMA across all timepoints
+│   ├── ohiot1dm/                          # OhioT1DM mediation
+│   │   ├── npcbps_weights.R               # npCBPS weight estimation
+│   │   ├── run_mixed_effects_mediation.R  # Mixed-effects mediation (lmer + QR)
+│   │   └── run_all_timepoints_lmer.R      # Wrapper: run CMA across all timepoints
+│   └── diatrend/                          # DiaTrend replication mediation
+│       ├── npcbps_weights.R               # npCBPS weight estimation
+│       ├── run_mixed_effects_mediation.R  # Mixed-effects mediation (lmer + QR)
+│       ├── run_all_timepoints.R           # Wrapper: CMA across all timepoints
+│       ├── run_medsens.R                  # Sequential-ignorability sensitivity (medsens)
+│       ├── cluster_bootstrap_mediation.R  # Subject-cluster bootstrap inference
+│       ├── run_bootstrap_timepoints.R     # Bootstrap grid across timepoints
+│       ├── decompose_demographics.R       # Demographic weighting/adjustment decomposition
+│       ├── influence_diagnostics.R        # Leave-one-subject-out influence
+│       ├── run_interaction_mediation.R    # Moderated (interaction) mediation
+│       └── plot_bootstrap_results.R       # Bootstrap result figures
 │
 ├── analysis_data/                         # Phi embeddings, weights, RData, diagnostics (not tracked)
 ├── mediation_results/                     # HPC mediation output CSVs; */figures/ tables+figures tracked
 │
-├── data_processing/                       # Raw data preprocessing (R)
-│   ├── data_pre_processing_2018.Rmd       # R Markdown: 2018 XML preprocessing
-│   ├── data_pre_processing_2020.Rmd       # R Markdown: 2020 XML preprocessing
-│   ├── z_meal_mediation_analysis_data_2018_5min.R  # Create 2018 meal windows
-│   ├── z_meal_mediation_analysis_data_2020_5min.R  # Create 2020 meal windows
-│   ├── combine_2018_2020_datasets.R       # Merge cohorts into combined dataset
-│   ├── export_meal_windows_for_autoencoder.R  # Export CSVs for Python AE training
-│   ├── realdata-preprocess-functions.R    # OhioT1DM XML parsing helpers
-│   └── mediation_analysis_preprocessing_functions.R  # Meal window extraction helpers
+├── data_processing/                       # Raw data preprocessing
+│   ├── ohiot1dm/                          # OhioT1DM preprocessing (R)
+│   │   ├── process_source.R               # XML to R data conversion
+│   │   ├── data_pre_processing_2018.Rmd   # R Markdown: 2018 XML preprocessing
+│   │   ├── data_pre_processing_2020.Rmd   # R Markdown: 2020 XML preprocessing
+│   │   ├── z_meal_mediation_analysis_data_2018_5min.R  # Create 2018 meal windows
+│   │   ├── z_meal_mediation_analysis_data_2020_5min.R  # Create 2020 meal windows
+│   │   ├── combine_2018_2020_datasets.R   # Merge cohorts into combined dataset
+│   │   ├── export_meal_windows_for_autoencoder.R  # Export CSVs for Python AE training
+│   │   ├── realdata-preprocess-functions.R  # OhioT1DM XML parsing helpers
+│   │   └── mediation_analysis_preprocessing_functions.R  # Meal window helpers
+│   └── diatrend/                          # DiaTrend preprocessing (Python)
+│       ├── parser.py                      # Parse DiaTrend Excel workbooks
+│       ├── episode_builder.py             # Build meal episodes (treatment/mediator/outcome)
+│       ├── merge_demographics.py          # Merge demographic covariates
+│       ├── diagnostics.py                 # Cohort/episode diagnostics
+│       ├── bob_kernel.py                  # Bolus-onset kernel utilities
+│       └── tests/                         # pytest suite (fixtures generated at test time)
 │
 ├── visualization_code/                    # All visualization & figure generation scripts
 │   ├── compose_paper_visualizations.py    # Orchestration: assemble paper figures & tables
@@ -77,7 +104,9 @@ causal-mediation-cgm/
 │   ├── generate_balance_diagnostics.py    # Balance checks, overlap, weight quality
 │   ├── generate_mediation_outputs.py      # Publication figures & tables (per meal type,
 │   │                                      #   covariate mode, model type, treatment offset)
-│   └── generate_architecture_comparisons.py  # Architecture & penalization comparison figures
+│   ├── generate_architecture_comparisons.py  # Architecture & penalization comparison figures
+│   └── diatrend_*.py                      # DiaTrend replication figures: data & cohort summary,
+│                                          #   embedding/balance diagnostics, mediation, profiles
 │
 ├── visualizations/                        # All generated outputs (figures, tables, data)
 │   ├── paper_visualizations/              # Paper-ready figures & tables (generated)
@@ -88,9 +117,6 @@ causal-mediation-cgm/
 │   ├── npcbps_balance/                    # Generated figures & tables
 │   ├── mediation_visualizations/          # Generated figures & tables
 │   └── incremental_data_experiment/       # Generated figures, tables, & experiment CSVs
-│
-├── OhioT1DM/                             # Raw OhioT1DM data processing
-│   └── process_source.R                   # XML to R data conversion
 │
 ├── config_local.yaml.template             # Template for local Python config
 ├── config_local.R.template                # Template for local R config
@@ -319,13 +345,14 @@ The project uses a three-tier configuration system (in order of precedence):
 
 ## Data
 
-Data files are not included in this repository due to size and privacy constraints. The project uses the [OhioT1DM dataset](http://smarthealth.cs.ohio.edu/OhioT1DM-dataset.html) (2018 and 2020 cohorts).
+Data files are not included in this repository due to size and privacy constraints. The primary analysis uses the [OhioT1DM dataset](http://smarthealth.cs.ohio.edu/OhioT1DM-dataset.html) (2018 and 2020 cohorts), and the independent replication uses the **DiaTrend dataset** (54 adults with type 1 diabetes; access-controlled, available via Synapse/Sage Bionetworks under its data use agreement).
 
 **Train/test split strategy:** The original OhioT1DM study-day-based train/test split is used for both the 2018 and 2020 cohorts. Each subject's recording period is divided into training days and testing days as defined by the dataset. The combined training set (2018 TRAIN + 2020 TRAIN) is used for autoencoder training, while the combined test set is used for causal mediation analysis.
 
 Expected data locations:
 - `ae_python_code/meal_windows_combined/{train,test}/` -- per-window CSVs for AE training
-- `analysis_data/` -- phi embeddings, RData files, balancing weights
+- `analysis_data/` -- phi embeddings, RData files, balancing weights (OhioT1DM)
+- `analysis_data/diatrend/` -- DiaTrend embeddings, weights, and meal-episode data
 
 ## Methods
 
