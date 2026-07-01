@@ -551,7 +551,39 @@ def plot_horizon_performance(results_df: pd.DataFrame, output_dir: Path):
 
 
 def main():
-    """Main entry point"""
+    """Main entry point.
+
+    Currently OhioT1DM-only. The ``--dataset`` flag is plumbed in for
+    future use; ``--dataset diatrend`` is rejected with a clear
+    pointer to ``train_and_export_embeddings.py``, which is the
+    DiaTrend-supported driver. Extending horizon-specific training to
+    DiaTrend will require loading DiaTrend tensors via
+    ``diatrend_loader.load_diatrend_data`` and re-running the horizon
+    sweep on those tensors; the architecture is already
+    dataset-agnostic.
+    """
+    import argparse as _argparse
+
+    parser = _argparse.ArgumentParser(
+        description="Train CLAE at multiple postprandial horizons (OhioT1DM)."
+    )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="ohiot1dm",
+        choices=["ohiot1dm", "diatrend"],
+        help="Which dataset to train on (default: ohiot1dm).",
+    )
+    args = parser.parse_args()
+
+    if args.dataset == "diatrend":
+        raise NotImplementedError(
+            "Horizon-specific training is OhioT1DM-only in this commit. "
+            "For DiaTrend, use `train_and_export_embeddings.py "
+            "--dataset diatrend ...` for the primary CLAE; horizon-specific "
+            "DiaTrend training will be added in a follow-up PR."
+        )
+
     CONFIG.ensure_dirs()
 
     print("\n" + "=" * 60)

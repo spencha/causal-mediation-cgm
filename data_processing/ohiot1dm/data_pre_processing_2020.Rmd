@@ -9,7 +9,8 @@ output: pdf_document
 # Source configuration
 config_locations <- c(
   file.path(getwd(), "cma_cluster", "config.R"),
-  file.path(getwd(), "..", "cma_cluster", "config.R")
+  file.path(getwd(), "..", "cma_cluster", "config.R"),
+  file.path(getwd(), "..", "..", "cma_cluster", "config.R")
 )
 for (cfg_path in config_locations) {
   if (file.exists(cfg_path)) {

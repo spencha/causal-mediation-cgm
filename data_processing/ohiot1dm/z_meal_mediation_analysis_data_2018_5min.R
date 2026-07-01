@@ -28,7 +28,7 @@ script_dir <- tryCatch({
 
 config_locations <- c(
   file.path(script_dir, "config.R"),
-  file.path(script_dir, "..", "cma_cluster", "config.R"),
+  file.path(script_dir, "..", "..", "cma_cluster", "config.R"),
   file.path(getwd(), "cma_cluster", "config.R")
 )
 
@@ -52,10 +52,10 @@ DATA_PROCESSING_DIR <- CONFIG$DATA_PROCESSING_DIR
 Z_var <- "meal"
 
 # Source preprocessing functions
-source(file.path(DATA_PROCESSING_DIR, "mediation_analysis_preprocessing_functions.R"))
+source(file.path(DATA_PROCESSING_DIR, "ohiot1dm", "mediation_analysis_preprocessing_functions.R"))
 
 # Load 5-minute preprocessed data (contains data_full, data_train, data_test)
-load(file.path(DATA_PROCESSING_DIR, "data_preprocessed_2018-5min.RData"))
+load(file.path(DATA_PROCESSING_DIR, "ohiot1dm", "data_preprocessed_2018-5min.RData"))
 
 # Helper function to compute max consecutive NAs in a vector
 max_consecutive_na <- function(x) {

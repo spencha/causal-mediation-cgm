@@ -257,17 +257,65 @@ def plot_prediction_results(regression_df, classification_df, output_dir):
 
 
 def main():
-    """Main execution"""
+    """Main execution.
+
+    Loads a phi-embeddings CSV (produced by
+    ``train_and_export_embeddings.py``) and runs continuous regression
+    + binary classification against the per-bin outcomes. The
+    ``--dataset`` flag selects which embeddings file and output
+    directory to use; the body of the analysis is dataset-agnostic.
+    """
+    import argparse as _argparse
+
+    parser = _argparse.ArgumentParser(
+        description="Evaluate phi embeddings on glycemic event prediction."
+    )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="ohiot1dm",
+        choices=["ohiot1dm", "diatrend"],
+        help="Which dataset's embeddings to evaluate (default: ohiot1dm).",
+    )
+    parser.add_argument(
+        "--embeddings-file",
+        type=str,
+        default=None,
+        help="Explicit embeddings CSV path; overrides the dataset default.",
+    )
+    args = parser.parse_args()
+
     print("\n" + "="*60)
     print("GLYCEMIC EVENT PREDICTION VALIDATION")
     print("="*60)
 
-    # Paths
-    output_dir = CONFIG.FIGURES_DIR / "glycemic_prediction"
+    if args.dataset == "diatrend":
+        # DiaTrend embeddings come from `train_and_export_embeddings.py
+        # --dataset diatrend`, which writes a single combined CSV under
+        # CONFIG.DIATREND_EMBEDDINGS_DIR (no train/test split). The CSV
+        # schema is a strict superset of the OhioT1DM one, so the
+        # downstream regression / classification code paths work
+        # unchanged once the path is set.
+        output_dir = CONFIG.DIATREND_ANALYSIS_DATA_DIR / "glycemic_prediction"
+        if args.embeddings_file:
+            embeddings_path = Path(args.embeddings_file)
+        else:
+            candidates = sorted(CONFIG.DIATREND_EMBEDDINGS_DIR.glob("phi_embeddings_diatrend_*.csv"))
+            if not candidates:
+                raise FileNotFoundError(
+                    "No DiaTrend phi embeddings found in "
+                    f"{CONFIG.DIATREND_EMBEDDINGS_DIR}. Run "
+                    "`python train_and_export_embeddings.py --dataset diatrend` first."
+                )
+            embeddings_path = candidates[-1]
+    else:
+        output_dir = CONFIG.FIGURES_DIR / "glycemic_prediction"
+        embeddings_path = (
+            Path(args.embeddings_file)
+            if args.embeddings_file
+            else CONFIG.ANALYSIS_DATA_DIR / "z_meal_y_delta_glucose_phi_embeddings_causal.csv"
+        )
     output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Try to load embeddings
-    embeddings_path = CONFIG.ANALYSIS_DATA_DIR / "z_meal_y_delta_glucose_phi_embeddings_causal.csv"
     if not embeddings_path.exists():
         print(f"Embeddings file not found: {embeddings_path}")
         print("Please run the autoencoder training first to generate embeddings.")

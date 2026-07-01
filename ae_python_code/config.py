@@ -105,16 +105,45 @@ class ProjectConfig:
         # 2020 data paths
         self.OHIO_2020_TRAIN_DIR = self.RAW_DATA_DIR / "2020" / "train"
         self.OHIO_2020_TEST_DIR = self.RAW_DATA_DIR / "2020" / "test"
+
+        # DiaTrend raw data (54 Excel workbooks, populated only on HPC3).
+        # Override with CAUSAL_AE_DIATREND_RAW_DIR or `diatrend_raw_dir` in
+        # config_local.yaml for non-default cluster paths.
+        self.DIATREND_RAW_DIR = self._get_path(
+            env_var="CAUSAL_AE_DIATREND_RAW_DIR",
+            config_key="diatrend_raw_dir",
+            default=self.BASE_DIR / "DiaTrend",
+        )
+
+        # DiaTrend analysis outputs (CSVs, embeddings, diagnostics).
+        # Sits alongside the OhioT1DM outputs under the repo-root analysis_data/
+        # in a dataset-namespaced subdirectory. cma_cluster/ holds code only.
+        self.DIATREND_ANALYSIS_DATA_DIR = self._get_path(
+            env_var="CAUSAL_AE_DIATREND_DATA_DIR",
+            config_key="diatrend_analysis_data_dir",
+            default=self.BASE_DIR / "analysis_data" / "diatrend",
+        )
+        self.DIATREND_EMBEDDINGS_DIR = self.DIATREND_ANALYSIS_DATA_DIR / "embeddings"
+        self.DIATREND_DIAGNOSTICS_DIR = self.DIATREND_ANALYSIS_DATA_DIR / "diagnostics"
+
+        # DiaTrend mediation results (analogous to MEDIATION_RESULTS_DIR for
+        # OhioT1DM but namespaced).
+        self.DIATREND_MEDIATION_RESULTS_DIR = self._get_path(
+            env_var="CAUSAL_AE_DIATREND_MEDIATION_RESULTS_DIR",
+            config_key="diatrend_mediation_results_dir",
+            default=self.BASE_DIR / "mediation_results" / "diatrend",
+        )
         
         # ==============================================
         # DATA DIRECTORIES
         # ==============================================
         
-        # Main analysis data (embeddings, RData files, weights)
+        # Main analysis data (embeddings, RData files, weights). Lives at the
+        # repo root (sibling of cma_cluster/, which is code only).
         self.ANALYSIS_DATA_DIR = self._get_path(
             env_var="CAUSAL_AE_DATA_DIR",
             config_key="analysis_data_dir",
-            default=self.BASE_DIR / "cma_cluster" / "analysis_data"
+            default=self.BASE_DIR / "analysis_data"
         )
         
         # Weights subdirectory
@@ -140,11 +169,11 @@ class ProjectConfig:
         # OUTPUT DIRECTORIES
         # ==============================================
         
-        # Mediation results from HPC jobs
+        # Mediation results from HPC jobs (repo root, sibling of cma_cluster/).
         self.MEDIATION_RESULTS_DIR = self._get_path(
             env_var="CAUSAL_AE_MEDIATION_RESULTS_DIR",
             config_key="mediation_results_dir",
-            default=self.BASE_DIR / "cma_cluster" / "mediation_results"
+            default=self.BASE_DIR / "mediation_results"
         )
         
         # Horizon-specific embeddings directory

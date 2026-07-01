@@ -3294,7 +3294,7 @@ def main():
     parser.add_argument(
         "--results-dir", type=str, default=None,
         help="Path to mediation_results directory "
-             "(default: cma_cluster/mediation_results)",
+             "(default: mediation_results)",
     )
     args = parser.parse_args()
 
@@ -3323,7 +3323,7 @@ def main():
 
     mediation_dir = (
         Path(args.results_dir) if args.results_dir
-        else PROJECT_ROOT / "cma_cluster" / "mediation_results"
+        else PROJECT_ROOT / "mediation_results"
     )
 
     # --- Copy pre-existing raw outputs to staging ---

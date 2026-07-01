@@ -13,13 +13,13 @@
 
 # Base directory (your local causal_ae folder)
 # On your Mac:
-base_dir: "/Users/Spencer/Desktop/causal_ae"
+base_dir: "/Users/yourname/causal_ae"
 
 # Override specific directories only if they differ from defaults
 # Defaults are relative to base_dir and match your current structure:
-#   analysis_data_dir: base_dir/cma_cluster/analysis_data
-#   meal_windows_dir: base_dir/ae_python_code/meal_windows  
-#   mediation_results_dir: base_dir/cma_cluster/mediation_results
+#   analysis_data_dir: base_dir/analysis_data
+#   meal_windows_dir: base_dir/ae_python_code/meal_windows
+#   mediation_results_dir: base_dir/mediation_results
 #   figures_dir: base_dir/results_visualizations/images
 
 # Uncomment and modify only if your data is stored elsewhere:

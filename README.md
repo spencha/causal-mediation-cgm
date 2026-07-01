@@ -49,13 +49,14 @@ causal-mediation-cgm/
 │   ├── meal_windows_2018/                 # 2018 cohort meal window CSVs (not tracked)
 │   └── meal_windows_combined/             # Combined 2018+2020 train/test (not tracked)
 │
-├── cma_cluster/                           # Causal mediation analysis (R)
+├── cma_cluster/                           # Causal mediation analysis code (R) — code only
 │   ├── config.R                           # Centralized R path configuration
 │   ├── npcbps_weights.R                   # npCBPS weight estimation
 │   ├── run_mixed_effects_mediation.R      # Mixed-effects mediation (lmer + QR)
-│   ├── run_all_timepoints_lmer.R          # Wrapper: run CMA across all timepoints
-│   ├── analysis_data/                     # Phi embeddings, weights, RData (not tracked)
-│   └── mediation_results/                 # HPC output CSVs (not tracked)
+│   └── run_all_timepoints_lmer.R          # Wrapper: run CMA across all timepoints
+│
+├── analysis_data/                         # Phi embeddings, weights, RData, diagnostics (not tracked)
+├── mediation_results/                     # HPC mediation output CSVs; */figures/ tables+figures tracked
 │
 ├── data_processing/                       # Raw data preprocessing (R)
 │   ├── data_pre_processing_2018.Rmd       # R Markdown: 2018 XML preprocessing
@@ -140,19 +141,19 @@ Convert OhioT1DM XML files into meal windows suitable for analysis.
 
 ```bash
 # Preprocess raw OhioT1DM XML data into 5-minute interval RData files
-# (run from the data_processing/ directory)
-cd data_processing
+# (run from the data_processing/ohiot1dm/ directory)
+cd data_processing/ohiot1dm
 Rscript -e "rmarkdown::render('data_pre_processing_2018.Rmd')"
 Rscript -e "rmarkdown::render('data_pre_processing_2020.Rmd')"
-cd ..
+cd ../..
 
 # Create meal windows for each cohort (produces FULL, TRAIN, TEST splits)
-Rscript data_processing/z_meal_mediation_analysis_data_2018_5min.R
-Rscript data_processing/z_meal_mediation_analysis_data_2020_5min.R
+Rscript data_processing/ohiot1dm/z_meal_mediation_analysis_data_2018_5min.R
+Rscript data_processing/ohiot1dm/z_meal_mediation_analysis_data_2020_5min.R
 
 # Combine cohorts and export CSVs for Python
-Rscript data_processing/combine_2018_2020_datasets.R
-Rscript data_processing/export_meal_windows_for_autoencoder.R
+Rscript data_processing/ohiot1dm/combine_2018_2020_datasets.R
+Rscript data_processing/ohiot1dm/export_meal_windows_for_autoencoder.R
 ```
 
 **Output:** `ae_python_code/meal_windows_combined/{train,test}/` containing per-window CSVs with columns for glucose, steps, basal, meal, heart rate, and bolus at 5-minute resolution.
@@ -188,17 +189,17 @@ python ae_python_code/train_horizon_specific_embeddings.py
 python ae_python_code/glycemic_event_prediction.py
 ```
 
-**Output:** `cma_cluster/analysis_data/phi_embeddings_{train,test}.csv` with phi features, treatment, mediator, outcomes, and metadata.
+**Output:** `analysis_data/phi_embeddings_{train,test}.csv` with phi features, treatment, mediator, outcomes, and metadata.
 
 ### Stage 3: Estimate Balancing Weights
 
 Compute npCBPS weights that balance phi features across treatment levels.
 
 ```bash
-Rscript cma_cluster/npcbps_weights.R
+Rscript cma_cluster/ohiot1dm/npcbps_weights.R
 ```
 
-**Output:** `cma_cluster/analysis_data/weights/` containing treatment and mediator balancing weights.
+**Output:** `analysis_data/weights/` containing treatment and mediator balancing weights.
 
 ### Stage 4: Run Causal Mediation Analysis
 
@@ -206,10 +207,10 @@ Run mediation analysis across all combinations of time points, meal types, model
 
 ```bash
 # Run all timepoints with mixed-effects model
-Rscript cma_cluster/run_all_timepoints_lmer.R
+Rscript cma_cluster/ohiot1dm/run_all_timepoints_lmer.R
 
 # Run specific configuration
-Rscript cma_cluster/run_mixed_effects_mediation.R \
+Rscript cma_cluster/ohiot1dm/run_mixed_effects_mediation.R \
     --timepoint 90 \
     --model lmer \
     --meal ALL \
@@ -218,7 +219,7 @@ Rscript cma_cluster/run_mixed_effects_mediation.R \
     --covariate-mode phi
 
 # Run all models, quantiles, and offsets
-Rscript cma_cluster/run_all_timepoints_lmer.R --run-all
+Rscript cma_cluster/ohiot1dm/run_all_timepoints_lmer.R --run-all
 ```
 
 ### Stage 5: Generate Visualizations
@@ -324,7 +325,7 @@ Data files are not included in this repository due to size and privacy constrain
 
 Expected data locations:
 - `ae_python_code/meal_windows_combined/{train,test}/` -- per-window CSVs for AE training
-- `cma_cluster/analysis_data/` -- phi embeddings, RData files, balancing weights
+- `analysis_data/` -- phi embeddings, RData files, balancing weights
 
 ## Methods
 

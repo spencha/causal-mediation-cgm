@@ -10,12 +10,12 @@
 
 # Base directory - your local causal_ae folder
 # This is the only setting most users need to change
-LOCAL_BASE_DIR <- "/Users/Spencer/Desktop/causal_ae"
+LOCAL_BASE_DIR <- "/Users/yourname/causal_ae"
 
 # Optional: Override specific directories if they differ from defaults
 # Defaults match your current structure:
-#   ANALYSIS_DATA_DIR: LOCAL_BASE_DIR/cma_cluster/analysis_data
-#   MEDIATION_RESULTS_DIR: LOCAL_BASE_DIR/cma_cluster/mediation_results
+#   ANALYSIS_DATA_DIR: LOCAL_BASE_DIR/analysis_data
+#   MEDIATION_RESULTS_DIR: LOCAL_BASE_DIR/mediation_results
 #   FIGURES_DIR: LOCAL_BASE_DIR/results_visualizations/images
 
 # Uncomment and modify only if needed:

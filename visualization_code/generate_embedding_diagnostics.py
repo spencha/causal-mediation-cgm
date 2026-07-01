@@ -85,7 +85,7 @@ def load_results():
         results['metrics'] = pd.read_csv(metrics_path)
         print(f"Loaded metrics: {metrics_path.name}")
 
-    # Embeddings are in: cma_cluster/analysis_data/embeddings/
+    # Embeddings are in: analysis_data/embeddings/
     # File patterns:
     #   phi_embeddings_combined_{arch}_{pct}pct_{penalty}_seed{seed}.csv
     #   phi_embeddings_train_{arch}_{pct}pct_{penalty}_seed{seed}.csv

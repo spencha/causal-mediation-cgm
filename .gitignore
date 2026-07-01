@@ -37,9 +37,14 @@ renv/staging/
 # Meal window data
 ae_python_code/meal_windows/
 
-# CSV data files (but not the scripts)
-cma_cluster/analysis_data/*.csv
-cma_cluster/combined_results/*.csv
+# CSV data files (but not the scripts).
+# Recursive pattern survives the ohiot1dm/ and diatrend/ namespacing under each output root.
+analysis_data/**/*.csv
+combined_results/**/*.csv
+
+# Excel workbooks are never committed. DiaTrend fixtures are generated at test time
+# into pytest tmp_path, not tracked in git.
+*.xlsx
 
 # R data files
 *.RData
@@ -64,10 +69,12 @@ cma_cluster/combined_results/*.csv
 # ============================================
 
 # Weights (generated)
-cma_cluster/analysis_data/weights/
+analysis_data/weights/
 
-# Mediation results from HPC
-cma_cluster/mediation_results/
+# Mediation results from HPC are regenerable and ignored. The committed
+# manuscript figures/tables/grids under */figures/ are already tracked, so
+# updates to them still commit; brand-new files there need `git add -f`.
+mediation_results/
 
 # Figures (all generated)
 results_visualizations/images/
@@ -113,6 +120,9 @@ Desktop.ini
 OhioT1DM/2018/
 OhioT1DM/2020/
 
+# Raw data (DiaTrend Excel workbooks, populated only on HPC3)
+DiaTrend/**
+
 # Generated data summaries
 results_visualizations/data_summary/
 
@@ -122,7 +132,9 @@ visualizations/incremental_data_experiment/data/
 # Paper visualizations outputs (regenerable via compose_paper_visualizations.py)
 visualizations/paper_visualizations/
 
-# Block all data directories
-ae_python_code/meal_windows_combined/
-cma_cluster/analysis_data/
-visualizations/
+# Manuscript — NEVER commit (npj revision in progress). See memory: never-commit-manuscript
+npj_Digital_Medicine_Manuscript_Copy_with_table_pdf.pdf
+/*.pdf
+
+# Manuscript Overleaf source folder — NEVER commit (npj revision)
+npj_Digital_Medicine_Manuscript_Copy_with_table_pdf/

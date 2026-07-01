@@ -41,8 +41,8 @@ script_dir <- tryCatch({
 })
 
 config_locations <- c(
-  file.path(script_dir, "config.R"),
-  file.path(script_dir, "..", "cma_cluster", "config.R"),
+  file.path(script_dir, "..", "config.R"),
+  file.path(script_dir, "..", "..", "cma_cluster", "config.R"),
   file.path(getwd(), "cma_cluster", "config.R")
 )
 
@@ -80,7 +80,7 @@ option_list <- list(
   make_option(c("--phi-file"), type="character", default=NULL,
               help="Custom path to phi embeddings CSV file"),
   make_option(c("--output-dir"), type="character", default=NULL,
-              help="Output directory for results (default: cma_cluster/mediation_results)"),
+              help="Output directory for results (default: mediation_results)"),
   make_option(c("-n", "--n-phi"), type="integer", default=3,
               help="Number of phi/PC features to use as covariates in mediation models (default: 3)"),
   make_option(c("--use-pca"), action="store_true", default=FALSE,

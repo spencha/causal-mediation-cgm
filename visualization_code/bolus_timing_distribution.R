@@ -13,7 +13,7 @@ library(dplyr)
 library(ggplot2)
 
 # Load combined RData
-rdata_path <- "cma_cluster/analysis_data/z_meal_mediation_analysis_data_combined_5min.RData"
+rdata_path <- "analysis_data/z_meal_mediation_analysis_data_combined_5min.RData"
 if (!file.exists(rdata_path)) {
   # Try alternate locations
   rdata_path <- file.path(getwd(), rdata_path)

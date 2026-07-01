@@ -27,7 +27,7 @@ script_dir <- tryCatch({
   }
 })
 
-config_path <- file.path(script_dir, "config.R")
+config_path <- file.path(script_dir, "..", "config.R")
 if (!file.exists(config_path)) {
   config_path <- file.path(getwd(), "cma_cluster", "config.R")
 }
@@ -45,7 +45,7 @@ option_list <- list(
   make_option(c("--weights"), type="character", default="embedded",
               help="Weights: 'embedded', path to file, or 'none'"),
   make_option(c("--output-dir"), type="character", default=NULL,
-              help="Output directory for results (default: cma_cluster/mediation_results)"),
+              help="Output directory for results (default: mediation_results)"),
   make_option(c("--sims"), type="integer", default=1000,
               help="Number of quasi-Bayesian simulations [default: 1000]"),
   make_option(c("--meal"), type="character", default="ALL",

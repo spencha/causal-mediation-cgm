@@ -28,6 +28,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from resid_ae_utils import load_windows
 from causal_linear_ae import train_causal_linear_ae
+from diatrend_loader import load_diatrend_data
 from sklearn.preprocessing import OneHotEncoder
 
 # Import config
@@ -429,8 +430,8 @@ def train_and_export(arch: str, penalty_id: str, seed: int, output_dir: Path,
     print(f"    - {test_file}")
     print(f"    - {combined_file}")
     print(f"\n  Next steps:")
-    print(f"    1. Run npCBPS: Rscript cma_cluster/npcbps_weights.R")
-    print(f"    2. Run CMA: Rscript cma_cluster/run_mixed_effects_mediation.R \\")
+    print(f"    1. Run npCBPS: Rscript cma_cluster/ohiot1dm/npcbps_weights.R")
+    print(f"    2. Run CMA: Rscript cma_cluster/ohiot1dm/run_mixed_effects_mediation.R \\")
     print(f"         --phi-file {test_file} --dataset 2020_TEST")
 
     return {
@@ -442,8 +443,183 @@ def train_and_export(arch: str, penalty_id: str, seed: int, output_dir: Path,
     }
 
 
+def train_and_export_diatrend(
+    *,
+    arch: str,
+    penalty_id: str,
+    seed: int,
+    output_dir: Path,
+    raw_dir: Path,
+    features: tuple[str, ...],
+    bob_dia_min: float | None,
+    cohorts: set[int] | None,
+    test_frac: float = 0.0,
+    latent_dim: int = LATENT_DIM,
+    epochs: int = EPOCHS,
+    batch_size: int = BATCH_SIZE,
+):
+    """Train the CLAE on DiaTrend episodes and export a single combined CSV.
+
+    DiaTrend has no natural train/test split (54 subjects, no original
+    protocol split). The CLAE is trained on whatever subset is admitted
+    by ``cohorts`` and embeddings are exported for the same subset in
+    one CSV. Downstream R-side mediation filters by cohort within that
+    single CSV.
+    """
+    np.random.seed(seed)
+    penalty_config = PENALTY_CONFIGS[penalty_id]
+
+    print(f"\n{'='*70}")
+    print(f"TRAINING (DiaTrend): {arch} | {penalty_id} | seed={seed}")
+    print(f"  features={features} | bob_dia_min={bob_dia_min} | cohorts={cohorts}")
+    print(f"  latent_dim={latent_dim}, epochs={epochs}, batch_size={batch_size}")
+    print(f"{'='*70}")
+
+    bob_params = None
+    if bob_dia_min is not None:
+        from data_processing.diatrend.bob_kernel import IOBKernelParams as _BobParams
+
+        bob_params = _BobParams(dia_min=float(bob_dia_min))
+
+    data, cohort_labels, std_params = load_diatrend_data(
+        raw_dir,
+        features=features,
+        standardize=True,
+        bob_params=bob_params,
+        cohorts=cohorts,
+        test_frac=test_frac,
+    )
+
+    (
+        X_ts,
+        X_ts_pre,
+        meal_ohe,
+        subj_ohe,
+        Z,
+        Z_bin,
+        y_seq,
+        mediator_scalar,
+        global_ids,
+        meal_list,
+        subj_list,
+        pre_ints,
+        post_X_ints,
+        total_bolus_arr,
+    ) = data
+
+    # Mirror the OhioT1DM driver's truncation of X_ts_pre to pre_ints.
+    X_ts_pre = X_ts_pre[:, :pre_ints, :]
+    glucose_at_meal = std_params["glucose_at_meal_raw"]
+    iob_at_meal = std_params["iob_at_meal"]
+    split_labels = std_params["split_labels"]
+
+    # OhioT1DM-style train/test discipline: the encoder and PCA are fit on
+    # the train rows only; embeddings are then produced for every episode
+    # from that train-fit encoder. Downstream mediation runs on the held-out
+    # test rows (filter on the exported `split` column). test_frac == 0
+    # labels everything "all", so train_mask is all-True (single-split mode).
+    train_mask = split_labels != "test"
+    n_train, n_test = int(train_mask.sum()), int((~train_mask).sum())
+
+    print(f"  Loaded {X_ts.shape[0]} DiaTrend episodes")
+    print(
+        f"  Within-subject temporal split (test_frac={test_frac}): "
+        f"{n_train} train, {n_test} test"
+    )
+    if std_params.get("parse_errors"):
+        n_errors = len(std_params["parse_errors"])
+        print(f"  [WARN] {n_errors} workbook(s) failed to parse; see diagnostic report.")
+
+    print(f"\n  Training {arch.upper()} encoder on the train split...")
+    t0 = time.time()
+    model, encoder, _phi_train, history = train_causal_linear_ae(
+        X_ts_pre=X_ts_pre[train_mask],
+        meal_ohe=meal_ohe[train_mask],
+        subj_ohe=subj_ohe[train_mask],
+        A_cont=Z[train_mask],
+        M_scalar=mediator_scalar[train_mask],
+        Y_seq=y_seq[train_mask],
+        latent_dim=latent_dim,
+        encoder_type=arch,
+        optimizer_name="adamw",
+        use_linearization=penalty_config["lin"],
+        use_balancing=penalty_config["bal"],
+        use_ci_penalty=penalty_config["ci"],
+        use_stability=penalty_config["stab"],
+        epochs=epochs,
+        batch_size=batch_size,
+        seed=seed,
+        verbose=1,
+        treatment_median=std_params["treatment_median"],
+        treatment_head_weight=0.0,
+    )
+    print(f"  Training completed in {time.time() - t0:.1f}s")
+
+    # Embed ALL episodes with the train-fit encoder (test rows are out-of-sample).
+    phi = encoder.predict([X_ts_pre, meal_ohe, subj_ohe], verbose=0)
+    print(f"  Embeddings shape: {phi.shape}")
+
+    # PCA fit on train embeddings, applied to all (mirrors OhioT1DM, which
+    # fits PCA on the train split and transforms the test split).
+    n_pca_components = min(10, phi.shape[1])
+    pca = PCA(n_components=n_pca_components)
+    pca.fit(phi[train_mask])
+    pc = pca.transform(phi)
+    print(
+        f"  PCA: {n_pca_components} components, variance explained: "
+        f"{pca.explained_variance_ratio_.sum():.1%}"
+    )
+
+    out_df = pd.DataFrame(
+        phi, columns=[f"phi_{i+1}" for i in range(phi.shape[1])]
+    )
+    out_df["global_window_id"] = global_ids.astype(int)
+    out_df["subject_id"] = subj_list
+    out_df["meal_type"] = meal_list
+    out_df["cohort"] = cohort_labels
+    out_df["treat_meal_carbs"] = Z.astype(float)
+    out_df["mediator_bolus_for_meal"] = mediator_scalar.astype(float)
+    out_df["total_bolus"] = total_bolus_arr.astype(float)
+    out_df["glucose_at_meal"] = glucose_at_meal.astype(float)
+    out_df["iob_at_meal"] = iob_at_meal.astype(float)
+    out_df["split"] = split_labels.astype(str)
+
+    for t_idx in range(min(31, y_seq.shape[1])):
+        out_df[f"Y_{60 + t_idx * 5}min"] = y_seq[:, t_idx].astype(float)
+    for i in range(n_pca_components):
+        out_df[f"PC_{i+1}"] = pc[:, i].astype(float)
+
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    feat_tag = "_".join(features) if isinstance(features, tuple) else features
+    config_str = (
+        f"{arch}_diatrend_{penalty_id}_seed{seed}_ld{latent_dim}_feats-{feat_tag}"
+    )
+    out_file = output_dir / f"phi_embeddings_diatrend_{config_str}.csv"
+    out_df.to_csv(out_file, index=False)
+    print(f"  Saved: {out_file}")
+
+    print(f"\n{'='*70}")
+    print("EXPORT COMPLETE (DiaTrend)")
+    print(f"{'='*70}")
+    print(f"  Output: {out_file}")
+    print(f"  Episodes: {len(out_df)}")
+    print(f"  Cohort 1: {(cohort_labels == '1').sum()}")
+    print(f"  Cohort 2: {(cohort_labels == '2').sum()}")
+    print(f"  Split: {(split_labels == 'train').sum()} train / "
+          f"{(split_labels == 'test').sum()} test / "
+          f"{(split_labels == 'all').sum()} unsplit")
+    print(f"\n  Next: Rscript cma_cluster/diatrend/run_mixed_effects_mediation.R \\")
+    print(f"           --phi-file {out_file}")
+
+    return {"output_file": str(out_file), "n_episodes": len(out_df)}
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Train model on combined 2018+2020 data and export embeddings for CMA")
+    parser = argparse.ArgumentParser(description="Train CLAE and export embeddings for CMA")
+    parser.add_argument("--dataset", type=str, default="ohiot1dm",
+                        choices=["ohiot1dm", "diatrend"],
+                        help="Which dataset to train on (default: ohiot1dm)")
     parser.add_argument("--arch", type=str, default="cnn", choices=["cnn", "lstm"],
                         help="Architecture (default: cnn)")
     parser.add_argument("--penalty", type=str, default="lin_bal",
@@ -452,7 +628,7 @@ def main():
     parser.add_argument("--seed", type=int, default=42,
                         help="Random seed (default: 42)")
     parser.add_argument("--output-dir", type=str, default=None,
-                        help="Output directory (default: analysis_data/embeddings)")
+                        help="Output directory (default depends on --dataset)")
     parser.add_argument("--latent-dim", type=int, default=LATENT_DIM,
                         help=f"Number of latent dimensions / phi features (default: {LATENT_DIM})")
     parser.add_argument("--epochs", type=int, default=EPOCHS,
@@ -460,30 +636,85 @@ def main():
     parser.add_argument("--batch-size", type=int, default=BATCH_SIZE,
                         help=f"Training batch size (default: {BATCH_SIZE})")
 
-    args = parser.parse_args()
+    # DiaTrend-specific arguments (ignored when --dataset ohiot1dm)
+    parser.add_argument("--diatrend-raw-dir", type=str, default=None,
+                        help="DiaTrend raw .xlsx directory (default: CONFIG.DIATREND_RAW_DIR)")
+    parser.add_argument("--diatrend-features", type=str, default="glucose",
+                        help=(
+                            "Comma-separated CLAE input channels for DiaTrend. "
+                            "Default 'glucose' is the Section 8.2 primary univariate spec; "
+                            "use 'glucose,meal,bolus' for the Section 8.6 multivariate "
+                            "sensitivity arm."
+                        ))
+    parser.add_argument("--diatrend-cohorts", type=str, default=None,
+                        help=(
+                            "Comma-separated cohort IDs to include for DiaTrend "
+                            "(e.g. '2' for the primary 37-subject arm, '1,2' for the "
+                            "full 54-subject robustness arm). Default: include all cohorts."
+                        ))
+    parser.add_argument("--diatrend-test-frac", type=float, default=0.2,
+                        help=(
+                            "Within-subject temporal test fraction for DiaTrend "
+                            "(OhioT1DM-style split). The latest this fraction of each "
+                            "subject's meals are held out as test; the encoder + PCA are "
+                            "fit on train and mediation runs on test. Set 0.0 to disable "
+                            "the split (single-sample mode). Default: 0.2."
+                        ))
+    parser.add_argument("--diatrend-bob-dia-min", type=float, default=None,
+                        help=(
+                            "If set, populate cohort-1 IOB via the Section 8.5 kernel-derived "
+                            "BOB using this DIA (in minutes). Cohort 2 keeps pump IOB. "
+                            "Default: leave cohort-1 IOB as NaN."
+                        ))
 
-    # Get project root (parent of ae_python_code)
+    args = parser.parse_args()
     project_root = Path(__file__).parent.parent
 
+    if args.dataset == "ohiot1dm":
+        if args.output_dir is None:
+            output_dir = CONFIG.ANALYSIS_DATA_DIR / "embeddings"
+        else:
+            output_dir = Path(args.output_dir)
+            if not output_dir.is_absolute():
+                output_dir = project_root / output_dir
+        return train_and_export(
+            arch=args.arch,
+            penalty_id=args.penalty,
+            seed=args.seed,
+            output_dir=output_dir,
+            latent_dim=args.latent_dim,
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+        )
+
+    # DiaTrend branch
+    raw_dir = Path(args.diatrend_raw_dir) if args.diatrend_raw_dir else CONFIG.DIATREND_RAW_DIR
     if args.output_dir is None:
-        output_dir = CONFIG.ANALYSIS_DATA_DIR / "embeddings"
+        output_dir = CONFIG.DIATREND_EMBEDDINGS_DIR
     else:
         output_dir = Path(args.output_dir)
-        # If relative path, resolve relative to project root (not cwd)
         if not output_dir.is_absolute():
             output_dir = project_root / output_dir
 
-    result = train_and_export(
+    features = tuple(s.strip() for s in args.diatrend_features.split(",") if s.strip())
+    cohorts: set[int] | None = None
+    if args.diatrend_cohorts:
+        cohorts = {int(c.strip()) for c in args.diatrend_cohorts.split(",") if c.strip()}
+
+    return train_and_export_diatrend(
         arch=args.arch,
         penalty_id=args.penalty,
         seed=args.seed,
         output_dir=output_dir,
+        raw_dir=raw_dir,
+        features=features,
+        bob_dia_min=args.diatrend_bob_dia_min,
+        cohorts=cohorts,
+        test_frac=args.diatrend_test_frac,
         latent_dim=args.latent_dim,
         epochs=args.epochs,
-        batch_size=args.batch_size
+        batch_size=args.batch_size,
     )
-
-    return result
 
 
 if __name__ == "__main__":

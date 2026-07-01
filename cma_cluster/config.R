@@ -85,14 +85,16 @@ build_config <- function() {
     base_dir <- get_config_path("CAUSAL_AE_BASE_DIR", project_root)
   }
 
-  # Detect flat cluster layout: when running from ~/cma_cluster directly,
-  # analysis_data/ is a direct subdirectory (not under cma_cluster/cma_cluster/).
-  # This avoids doubled paths like ~/cma_cluster/cma_cluster/analysis_data/.
-  is_flat_layout <- dir.exists(file.path(base_dir, "analysis_data")) &&
-                    !dir.exists(file.path(base_dir, "ae_python_code"))
-
-  # Helper to resolve cma_cluster-relative paths
-  cma_dir <- if (is_flat_layout) base_dir else file.path(base_dir, "cma_cluster")
+  # analysis_data/ and mediation_results/ live at the repo root, as siblings of
+  # cma_cluster/ (which holds code only). data_root is the repo root in the
+  # normal layout; when running from inside cma_cluster/ directly (no
+  # ae_python_code sibling) it is the parent so the dirs still resolve to the
+  # repo root rather than nesting under cma_cluster/.
+  data_root <- if (dir.exists(file.path(base_dir, "ae_python_code"))) {
+    base_dir
+  } else {
+    normalizePath(file.path(base_dir, ".."), mustWork = FALSE)
+  }
 
   config <- list(
     # Project structure
@@ -107,13 +109,13 @@ build_config <- function() {
     # Data directories
     ANALYSIS_DATA_DIR = get_config_path(
       "CAUSAL_AE_DATA_DIR",
-      file.path(cma_dir, "analysis_data")
+      file.path(data_root, "analysis_data")
     ),
 
     # Results directories
     MEDIATION_RESULTS_DIR = get_config_path(
       "CAUSAL_AE_MEDIATION_RESULTS_DIR",
-      file.path(cma_dir, "mediation_results")
+      file.path(data_root, "mediation_results")
     ),
 
     # Figures
@@ -143,6 +145,27 @@ build_config <- function() {
   config$OHIO_2020_TRAIN_DIR <- file.path(config$RAW_DATA_DIR, "2020", "train")
   config$OHIO_2020_TEST_DIR <- file.path(config$RAW_DATA_DIR, "2020", "test")
 
+  # DiaTrend raw data (54 Excel workbooks, populated only on HPC3).
+  config$DIATREND_RAW_DIR <- get_config_path(
+    "CAUSAL_AE_DIATREND_RAW_DIR",
+    file.path(base_dir, "DiaTrend")
+  )
+
+  # DiaTrend analysis outputs, namespaced under the repo-root analysis_data/.
+  config$DIATREND_ANALYSIS_DATA_DIR <- get_config_path(
+    "CAUSAL_AE_DIATREND_DATA_DIR",
+    file.path(data_root, "analysis_data", "diatrend")
+  )
+  config$DIATREND_EMBEDDINGS_DIR <- file.path(config$DIATREND_ANALYSIS_DATA_DIR, "embeddings")
+  config$DIATREND_DIAGNOSTICS_DIR <- file.path(config$DIATREND_ANALYSIS_DATA_DIR, "diagnostics")
+  config$DIATREND_WEIGHTS_DIR <- file.path(config$DIATREND_ANALYSIS_DATA_DIR, "weights")
+
+  # DiaTrend mediation outputs.
+  config$DIATREND_MEDIATION_RESULTS_DIR <- get_config_path(
+    "CAUSAL_AE_DIATREND_MEDIATION_RESULTS_DIR",
+    file.path(data_root, "mediation_results", "diatrend")
+  )
+
   # Meal windows directories for autoencoder
   config$MEAL_WINDOWS_COMBINED_DIR <- file.path(base_dir, "ae_python_code", "meal_windows_combined")
 
@@ -152,10 +175,6 @@ build_config <- function() {
   # Combined (2018 + 2020) train/test directories
   config$MEAL_WINDOWS_COMBINED_TRAIN_DIR <- file.path(base_dir, "ae_python_code", "meal_windows_combined", "train")
   config$MEAL_WINDOWS_COMBINED_TEST_DIR <- file.path(base_dir, "ae_python_code", "meal_windows_combined", "test")
-
-  if (is_flat_layout) {
-    cat("Note: Detected flat cluster layout (running from cma_cluster/ directly)\n")
-  }
 
   return(config)
 }

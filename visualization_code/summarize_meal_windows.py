@@ -286,7 +286,7 @@ def load_meal_window_data(embeddings_file=None):
     print("LOADING MEAL WINDOW DATA")
     print("="*70)
 
-    # Embeddings are in: cma_cluster/analysis_data/embeddings/
+    # Embeddings are in: analysis_data/embeddings/
     # File pattern: phi_embeddings_combined_{arch}_{pct}pct_{penalty}_seed{seed}.csv
     # Example: phi_embeddings_combined_cnn_75pct_lin_bal_seed42.csv
     embeddings_dir = DATA_DIR / 'embeddings'

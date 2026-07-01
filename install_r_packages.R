@@ -8,10 +8,12 @@ packages <- c(
   # Causal inference
   "mediation",
   "CBPS",
-  
+
   # Regression models
   "quantreg",
   "mgcv",
+  "lme4",      # lmer mediator/outcome models (run_mixed_effects_mediation.R)
+  "survival",  # survreg Tobit mediator (lm/qr model branches)
   
   # Data manipulation
   "dplyr",

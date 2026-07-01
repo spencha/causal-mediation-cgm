@@ -24,7 +24,7 @@ script_dir <- tryCatch({
 
 config_locations <- c(
   file.path(script_dir, "config.R"),
-  file.path(script_dir, "..", "cma_cluster", "config.R"),
+  file.path(script_dir, "..", "..", "cma_cluster", "config.R"),
   file.path(getwd(), "cma_cluster", "config.R")
 )
 

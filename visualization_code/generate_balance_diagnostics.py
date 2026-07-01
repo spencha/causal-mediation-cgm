@@ -146,7 +146,7 @@ def load_data(use_pca=False, n_features=None):
     print("="*70)
     print(f"Feature type: {feature_type} (using first {N_PHI_FEATURES} features)")
 
-    # Embeddings are in: cma_cluster/analysis_data/embeddings/
+    # Embeddings are in: analysis_data/embeddings/
     # File pattern: phi_embeddings_combined_{arch}_{pct}pct_{penalty}_seed{seed}.csv
     embeddings_dir = PHI_DIR / 'embeddings'
 
